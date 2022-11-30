@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
 
-[结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，本仓库是结巴分词的 Golang 语言实现，修改于[jiebago](https://github.com/wangbin/jiebago)，优化了速度与性能，增加了从`fs.File`加载字典等功能。
+[结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，本仓库是结巴分词的 Golang 语言实现，修改于[jiebago](https://github.com/wangbin/jiebago)，大幅优化了速度与性能，增加了从`fs.File`加载字典等功能。
 
 
 ## 使用
@@ -65,4 +65,18 @@ BenchmarkCutForSearchNoHMM-8   	   49009	     24371 ns/op	   4.39 MB/s	   26421 
 BenchmarkCutForSearch-8        	   44643	     26597 ns/op	   4.02 MB/s	   33224 B/op	     194 allocs/op
 PASS
 ok  	github.com/fumiama/jieba	8.769s
+```
+#### 对比[原仓库](https://github.com/wangbin/jiebago)速度
+```c
+goos: darwin
+goarch: amd64
+pkg: 
+cpu: Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+BenchmarkCutNoHMM-8            	   21237	     56105 ns/op	   1.91 MB/s	   11514 B/op	     133 allocs/op
+BenchmarkCut-8                 	   17604	     68463 ns/op	   1.56 MB/s	   13480 B/op	     200 allocs/op
+BenchmarkCutAll-8              	   24620	     49472 ns/op	   2.16 MB/s	    7724 B/op	     116 allocs/op
+BenchmarkCutForSearchNoHMM-8   	   17803	     66158 ns/op	   1.62 MB/s	   11766 B/op	     143 allocs/op
+BenchmarkCutForSearch-8        	   14895	     79056 ns/op	   1.35 MB/s	   13772 B/op	     210 allocs/op
+PASS
+ok  		11.911s
 ```
