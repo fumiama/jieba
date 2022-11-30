@@ -20,7 +20,7 @@ func Example_extractTags() {
 }
 
 func Example_textRank() {
-	t, err := LoadDictionary("../dict.txt")
+	t, err := NewTextRanker("../dict.txt")
 	if err != nil {
 		panic(err)
 	}

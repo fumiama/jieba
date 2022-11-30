@@ -16,7 +16,7 @@ var (
 )
 
 type edge struct {
-	weight float64
+	weight uint64
 	start  string
 	end    string
 }
@@ -47,7 +47,7 @@ func newUndirectWeightedGraph() *undirectWeightedGraph {
 	}
 }
 
-func (u *undirectWeightedGraph) addEdge(start, end string, weight float64) {
+func (u *undirectWeightedGraph) addEdge(start, end string, weight uint64) {
 	if _, ok := u.graph[start]; !ok {
 		u.keys = append(u.keys, start)
 		u.graph[start] = edges{&edge{start: start, end: end, weight: weight}}
@@ -69,7 +69,7 @@ func (u *undirectWeightedGraph) rank() Segments {
 	}
 
 	ws := make(map[string]float64, len(u.graph)*2)
-	outSum := make(map[string]float64, len(u.graph)*2)
+	outSum := make(map[string]uint64, len(u.graph)*2)
 
 	wsdef := 1.0
 	if len(u.graph) > 0 {
@@ -77,7 +77,7 @@ func (u *undirectWeightedGraph) rank() Segments {
 	}
 	for n, out := range u.graph {
 		ws[n] = wsdef
-		sum := 0.0
+		sum := uint64(0)
 		for _, e := range out {
 			sum += e.weight
 		}
@@ -89,7 +89,7 @@ func (u *undirectWeightedGraph) rank() Segments {
 			s := 0.0
 			inedges := u.graph[n]
 			for _, e := range inedges {
-				s += e.weight / outSum[e.end] * ws[e.end]
+				s += float64(e.weight) * ws[e.end] / float64(outSum[e.end])
 			}
 			ws[n] = (1 - dampingFactor) + dampingFactor*s
 		}
@@ -121,7 +121,7 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 		posFilt[pos] = 1
 	}
 	g := newUndirectWeightedGraph()
-	cm := make(map[uint64]float64, 256)
+	cm := make(map[uint64]uint64, 256)
 	hm := make(map[uint64][2]string, 256)
 	gethash := func(a, b string) uint64 {
 		h := crc64.New(crc64.MakeTable(crc64.ISO))
@@ -143,10 +143,10 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 				}
 				h := gethash(pairs[i].Text(), pairs[j].Text())
 				if _, ok := cm[h]; !ok {
-					cm[h] = 1.0
+					cm[h] = 1
 					hm[h] = [2]string{pairs[i].Text(), pairs[j].Text()}
 				} else {
-					cm[h] += 1.0
+					cm[h]++
 				}
 			}
 		}
@@ -171,8 +171,8 @@ func (t *TextRanker) TextRank(sentence string, topK int) Segments {
 // TextRanker is used to extract tags from sentence.
 type TextRanker posseg.Segmenter
 
-// LoadDictionary reads a given file and create a new dictionary file for Textranker.
-func LoadDictionary(fileName string) (TextRanker, error) {
+// NewTextRanker reads a given file and create a new dictionary file for Textranker.
+func NewTextRanker(fileName string) (TextRanker, error) {
 	seg := posseg.Segmenter{}
 	return TextRanker(seg), seg.LoadDictionary(fileName)
 }
