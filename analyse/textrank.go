@@ -132,7 +132,7 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 	}
 	span := 5
 	var pairs []posseg.Segment
-	for pair := range t.seg.Cut(sentence, true) {
+	for pair := range (*posseg.Segmenter)(t).Cut(sentence, true) {
 		pairs = append(pairs, pair)
 	}
 	for i := range pairs {
@@ -169,12 +169,10 @@ func (t *TextRanker) TextRank(sentence string, topK int) Segments {
 }
 
 // TextRanker is used to extract tags from sentence.
-type TextRanker struct {
-	seg *posseg.Segmenter
-}
+type TextRanker posseg.Segmenter
 
 // LoadDictionary reads a given file and create a new dictionary file for Textranker.
-func (t *TextRanker) LoadDictionary(fileName string) error {
-	t.seg = new(posseg.Segmenter)
-	return t.seg.LoadDictionary(fileName)
+func LoadDictionary(fileName string) (TextRanker, error) {
+	seg := posseg.Segmenter{}
+	return TextRanker(seg), seg.LoadDictionary(fileName)
 }
