@@ -32,9 +32,6 @@ func worker() {
 }
 
 func Example_parallelCut() {
-	// Set the number of goroutines
-	runtime.GOMAXPROCS(numThreads)
-
 	// open file for segmentation
 	file, err := os.Open("README.md")
 	if err != nil {
@@ -83,6 +80,7 @@ func Example_parallelCut() {
 	}
 
 	t1 := time.Now()
+	close(result)
 
 	// Write the segments into a file for verify
 	outputFile, _ := os.OpenFile("parallelCut.log", os.O_CREATE|os.O_WRONLY, 0600)

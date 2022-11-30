@@ -791,6 +791,7 @@ func TestLoadUserDictionary(t *testing.T) {
 
 func BenchmarkCutNoHMM(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+	b.SetBytes(int64(len(sentence)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		seg.Cut(sentence, false)
@@ -799,6 +800,7 @@ func BenchmarkCutNoHMM(b *testing.B) {
 
 func BenchmarkCut(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+	b.SetBytes(int64(len(sentence)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		seg.Cut(sentence, true)
@@ -807,6 +809,7 @@ func BenchmarkCut(b *testing.B) {
 
 func BenchmarkCutAll(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+	b.SetBytes(int64(len(sentence)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		seg.CutAll(sentence)
@@ -815,6 +818,7 @@ func BenchmarkCutAll(b *testing.B) {
 
 func BenchmarkCutForSearchNoHMM(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+	b.SetBytes(int64(len(sentence)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		seg.CutForSearch(sentence, false)
@@ -823,6 +827,7 @@ func BenchmarkCutForSearchNoHMM(b *testing.B) {
 
 func BenchmarkCutForSearch(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+	b.SetBytes(int64(len(sentence)))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		seg.CutForSearch(sentence, true)
