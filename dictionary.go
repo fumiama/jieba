@@ -15,7 +15,7 @@ type Dictionary struct {
 	sync.RWMutex
 }
 
-// Load loads all tokens from given channel
+// Load loads all tokens
 func (d *Dictionary) Load(tokens ...dictionary.Token) {
 	d.Lock()
 	for _, token := range tokens {

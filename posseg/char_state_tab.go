@@ -39,7 +39,7 @@ func newTag(position, pos string) (tag, error) {
 		}
 	}
 	if positionIndex < 0 || posIndex < 0 {
-		return 0, fmt.Errorf("Failed to convert %s %s to Tag", position, pos)
+		return 0, fmt.Errorf("failed to convert %s %s to Tag", position, pos)
 	}
 	return tag(positionIndex + posIndex), nil
 }
@@ -6705,6 +6705,6 @@ var (
 		'\u9fa0': []uint16{413},
 	}
 
-	positions = []string{"B", "E", "M", "S"}
-	poss      = []string{"a", "ad", "ag", "an", "b", "bg", "c", "d", "df", "dg", "e", "en", "f", "g", "h", "i", "in", "j", "jn", "k", "l", "ln", "m", "mg", "mq", "n", "ng", "nr", "nrfg", "nrt", "ns", "nt", "nz", "o", "p", "q", "qe", "qg", "r", "rg", "rr", "rz", "s", "t", "tg", "u", "ud", "ug", "uj", "ul", "uv", "uz", "v", "vd", "vg", "vi", "vn", "vq", "w", "x", "y", "yg", "z", "zg"}
+	positions = [...]string{"B", "E", "M", "S"}
+	poss      = [...]string{"a", "ad", "ag", "an", "b", "bg", "c", "d", "df", "dg", "e", "en", "f", "g", "h", "i", "in", "j", "jn", "k", "l", "ln", "m", "mg", "mq", "n", "ng", "nr", "nrfg", "nrt", "ns", "nt", "nz", "o", "p", "q", "qe", "qg", "r", "rg", "rr", "rz", "s", "t", "tg", "u", "ud", "ug", "uj", "ul", "uv", "uz", "v", "vd", "vg", "vi", "vn", "vq", "w", "x", "y", "yg", "z", "zg"}
 )

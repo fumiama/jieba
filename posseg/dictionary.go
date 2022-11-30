@@ -10,13 +10,13 @@ import (
 
 // A Dictionary represents a thread-safe dictionary used for word segmentation.
 type Dictionary struct {
+	sync.RWMutex
 	total, logTotal float64
 	freqMap         map[string]float64
 	posMap          map[string]string
-	sync.RWMutex
 }
 
-// Load loads all tokens from given channel
+// Load loads all tokens
 func (d *Dictionary) Load(tokens ...dictionary.Token) {
 	d.Lock()
 	for _, token := range tokens {

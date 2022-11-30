@@ -133,10 +133,7 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 		return h.Sum64()
 	}
 	span := 5
-	var pairs []posseg.Segment
-	for pair := range (*posseg.Segmenter)(t).Cut(sentence, true) {
-		pairs = append(pairs, pair)
-	}
+	pairs := (*posseg.Segmenter)(t).Cut(sentence, true)
 	for i := range pairs {
 		if _, ok := posFilt[pairs[i].Pos()]; ok {
 			for j := i + 1; j < i+span && j <= len(pairs); j++ {
@@ -174,13 +171,13 @@ func (t *TextRanker) TextRank(sentence string, topK int) Segments {
 type TextRanker posseg.Segmenter
 
 // NewTextRanker reads a given file and create a new dictionary file for Textranker.
-func NewTextRanker(file fs.File) (TextRanker, error) {
-	seg := posseg.Segmenter{}
-	return TextRanker(seg), seg.LoadDictionary(file)
+func NewTextRanker(file fs.File) (*TextRanker, error) {
+	seg, err := posseg.LoadDictionary(file)
+	return (*TextRanker)(seg), err
 }
 
 // NewTextRankerAt reads a given file and create a new dictionary file for Textranker.
-func NewTextRankerAt(fileName string) (TextRanker, error) {
-	seg := posseg.Segmenter{}
-	return TextRanker(seg), seg.LoadDictionaryAt(fileName)
+func NewTextRankerAt(file string) (*TextRanker, error) {
+	seg, err := posseg.LoadDictionaryAt(file)
+	return (*TextRanker)(seg), err
 }

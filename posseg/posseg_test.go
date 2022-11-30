@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	seg          Segmenter
+	seg, _       = LoadDictionaryAt("../dict.txt")
 	testContents = []string{
 		"这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。",
 		"我不喜欢日本和服。",
@@ -268,21 +268,9 @@ var (
 	}
 )
 
-func init() {
-	seg.LoadDictionaryAt("../dict.txt")
-}
-
-func chanToArray(ch <-chan Segment) []Segment {
-	var result []Segment
-	for word := range ch {
-		result = append(result, word)
-	}
-	return result
-}
-
 func TestCut(t *testing.T) {
 	for index, content := range testContents {
-		result := chanToArray(seg.Cut(content, true))
+		result := seg.Cut(content, true)
 		if len(defaultCutResult[index]) != len(result) {
 			t.Errorf("default cut for %s length should be %d not %d\n",
 				content, len(defaultCutResult[index]), len(result))
@@ -294,7 +282,7 @@ func TestCut(t *testing.T) {
 				t.Fatalf("expect %s, got %s", defaultCutResult[index][i], result[i])
 			}
 		}
-		result = chanToArray(seg.Cut(content, false))
+		result = seg.Cut(content, false)
 		if len(noHMMCutResult[index]) != len(result) {
 			t.Fatal(content)
 		}
@@ -316,7 +304,7 @@ func TestBug132(t *testing.T) {
 		{"又", "d"},
 		{"啞", "v"},
 	}
-	result := chanToArray(seg.Cut(sentence, true))
+	result := seg.Cut(sentence, true)
 	if len(cutResult) != len(result) {
 		t.Fatal(result)
 	}
@@ -345,7 +333,7 @@ func TestBug137(t *testing.T) {
 		{"研究", "vn"},
 		{"組", "x"},
 	}
-	result := chanToArray(seg.Cut(sentence, true))
+	result := seg.Cut(sentence, true)
 	if len(cutResult) != len(result) {
 		t.Fatal(result)
 	}
@@ -358,7 +346,9 @@ func TestBug137(t *testing.T) {
 
 func TestUserDict(t *testing.T) {
 	seg.LoadUserDictionaryAt("../userdict.txt")
-	defer seg.LoadDictionaryAt("../dict.txt")
+	defer func() {
+		seg, _ = LoadDictionaryAt("../dict.txt")
+	}()
 	sentence := "李小福是创新办主任也是云计算方面的专家; 什么是八一双鹿例如我输入一个带“韩玉赏鉴”的标题，在自定义词库中也增加了此词为N类型"
 
 	cutResult := []Segment{
@@ -400,7 +390,7 @@ func TestUserDict(t *testing.T) {
 		{"N", "eng"},
 		{"类型", "n"}}
 
-	result := chanToArray(seg.Cut(sentence, true))
+	result := seg.Cut(sentence, true)
 	if len(cutResult) != len(result) {
 		t.Fatal(result)
 	}
@@ -415,7 +405,7 @@ func BenchmarkCutNoHMM(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		chanToArray(seg.Cut(sentence, false))
+		seg.Cut(sentence, false)
 	}
 }
 
@@ -423,6 +413,6 @@ func BenchmarkCut(b *testing.B) {
 	sentence := "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		chanToArray(seg.Cut(sentence, true))
+		seg.Cut(sentence, true)
 	}
 }

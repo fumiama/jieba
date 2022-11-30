@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-// DictLoader is the interface that could add one token or load
-// tokens from channel.
+// DictLoader is the interface that could add one token or load tokens
 type DictLoader interface {
 	Load(...Token)
 	AddToken(Token)

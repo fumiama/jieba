@@ -7,10 +7,12 @@ import (
 )
 
 func Example() {
-	var seg posseg.Segmenter
-	seg.LoadDictionaryAt("../dict.txt")
+	seg, err := posseg.LoadDictionaryAt("../dict.txt")
+	if err != nil {
+		panic(err)
+	}
 
-	for segment := range seg.Cut("我爱北京天安门", true) {
+	for _, segment := range seg.Cut("我爱北京天安门", true) {
 		fmt.Printf("%s %s\n", segment.Text(), segment.Pos())
 	}
 	// Output:
