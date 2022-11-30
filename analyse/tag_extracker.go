@@ -112,15 +112,16 @@ func (t *TagExtracter) ExtractTags(sentence string, topK int) (tags Segments) {
 	for _, freq := range freqMap {
 		total += freq
 	}
-	ws := make(Segments, 0)
-	var s Segment
+	ws := make(Segments, len(freqMap))
+	i := 0
 	for k, v := range freqMap {
+		ws[i].text = k
 		if freq, ok := t.idf.Frequency(k); ok {
-			s = Segment{text: k, weight: freq * float64(v) / float64(total)}
+			ws[i].weight = freq * float64(v) / float64(total)
 		} else {
-			s = Segment{text: k, weight: t.idf.median * float64(v) / float64(total)}
+			ws[i].weight = t.idf.median * float64(v) / float64(total)
 		}
-		ws = append(ws, s)
+		i++
 	}
 	sort.Sort(sort.Reverse(ws))
 	if len(ws) > topK {

@@ -11,10 +11,10 @@ import (
 // Idf represents a thread-safe dictionary for all words with their
 // IDFs(Inverse Document Frequency).
 type Idf struct {
-	freqMap map[string]float64
-	median  float64
-	freqs   []float64
 	sync.RWMutex
+	median  float64
+	freqMap map[string]float64
+	freqs   []float64
 }
 
 // AddToken adds a new word with IDF into it's dictionary.
@@ -57,5 +57,5 @@ func (i *Idf) Frequency(key string) (float64, bool) {
 
 // NewIdf creates a new Idf instance.
 func NewIdf() *Idf {
-	return &Idf{freqMap: make(map[string]float64), freqs: make([]float64, 0)}
+	return &Idf{freqMap: make(map[string]float64, 256), freqs: make([]float64, 0, 256)}
 }
