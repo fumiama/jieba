@@ -11,10 +11,9 @@ var (
 )
 
 func cutHan(sentence string) []string {
-	result := make([]string, 0, 10)
-
 	runes := []rune(sentence)
-	_, posList := viterbi(runes, []byte{'B', 'M', 'E', 'S'})
+	result := make([]string, 0, len(runes))
+	_, posList := viterbi(runes, 'B', 'M', 'E', 'S')
 	begin, next := 0, 0
 	for i, char := range runes {
 		pos := posList[i]
@@ -37,29 +36,23 @@ func cutHan(sentence string) []string {
 }
 
 // Cut cuts sentence into words using Hidden Markov Model with Viterbi
-// algorithm. It is used by jieba for unknonw words.
-func Cut(sentence string) []string {
-	result := make([]string, 0, 10)
-	s := sentence
-	var hans string
-	var hanLoc []int
-	var nonhanLoc []int
-
+// algorithm. It is used by jieba for unknown words.
+func Cut(s string) []string {
+	result := make([]string, 0, len(s))
+lop:
 	for {
-		hanLoc = reHan.FindStringIndex(s)
+		hanLoc := reHan.FindStringIndex(s)
 		if hanLoc == nil {
 			if len(s) == 0 {
 				break
 			}
 		} else if hanLoc[0] == 0 {
-			hans = s[hanLoc[0]:hanLoc[1]]
+			hans := s[hanLoc[0]:hanLoc[1]]
 			s = s[hanLoc[1]:]
-			for _, han := range cutHan(hans) {
-				result = append(result, han)
-			}
+			result = append(result, cutHan(hans)...)
 			continue
 		}
-		nonhanLoc = reSkip.FindStringIndex(s)
+		nonhanLoc := reSkip.FindStringIndex(s)
 		if nonhanLoc == nil {
 			if len(s) == 0 {
 				break
@@ -73,18 +66,19 @@ func Cut(sentence string) []string {
 			}
 		}
 		var loc []int
-		if hanLoc == nil && nonhanLoc == nil {
+		switch {
+		case hanLoc == nil && nonhanLoc == nil:
 			if len(s) > 0 {
 				result = append(result, s)
-				break
+				break lop
 			}
-		} else if hanLoc == nil {
+		case hanLoc == nil:
 			loc = nonhanLoc
-		} else if nonhanLoc == nil {
+		case nonhanLoc == nil:
 			loc = hanLoc
-		} else if hanLoc[0] < nonhanLoc[0] {
+		case hanLoc[0] < nonhanLoc[0]:
 			loc = hanLoc
-		} else {
+		default:
 			loc = nonhanLoc
 		}
 		result = append(result, s[:loc[0]])

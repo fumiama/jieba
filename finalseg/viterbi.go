@@ -8,20 +8,19 @@ import (
 const minFloat = -3.14e100
 
 var (
-	prevStatus = make(map[byte][]byte)
-	probStart  = make(map[byte]float64)
+	prevStatus = map[byte][2]byte{
+		'B': {'E', 'S'},
+		'M': {'M', 'B'},
+		'S': {'S', 'E'},
+		'E': {'B', 'M'},
+	}
+	probStart = map[byte]float64{
+		'B': -0.26268660809250016,
+		'E': -3.14e+100,
+		'M': -3.14e+100,
+		'S': -1.4652633398537678,
+	}
 )
-
-func init() {
-	prevStatus['B'] = []byte{'E', 'S'}
-	prevStatus['M'] = []byte{'M', 'B'}
-	prevStatus['S'] = []byte{'S', 'E'}
-	prevStatus['E'] = []byte{'B', 'M'}
-	probStart['B'] = -0.26268660809250016
-	probStart['E'] = -3.14e+100
-	probStart['M'] = -3.14e+100
-	probStart['S'] = -1.4652633398537678
-}
 
 type probState struct {
 	prob  float64
@@ -49,10 +48,10 @@ func (ps probStates) Swap(i, j int) {
 	ps[i], ps[j] = ps[j], ps[i]
 }
 
-func viterbi(obs []rune, states []byte) (float64, []byte) {
-	path := make(map[byte][]byte)
-	V := make([]map[byte]float64, len(obs))
-	V[0] = make(map[byte]float64)
+func viterbi(obs []rune, states ...byte) (float64, []byte) {
+	path := [256][]byte{}
+	newPath := [256][]byte{}
+	V := make([][256]float64, len(obs))
 	for _, y := range states {
 		if val, ok := probEmit[y][obs[0]]; ok {
 			V[0][y] = val + probStart[y]
@@ -61,12 +60,9 @@ func viterbi(obs []rune, states []byte) (float64, []byte) {
 		}
 		path[y] = []byte{y}
 	}
-
 	for t := 1; t < len(obs); t++ {
-		newPath := make(map[byte][]byte)
-		V[t] = make(map[byte]float64)
 		for _, y := range states {
-			ps0 := make(probStates, 0)
+			ps0 := make(probStates, 0, 2)
 			var emP float64
 			if val, ok := probEmit[y][obs[t]]; ok {
 				emP = val
@@ -91,9 +87,9 @@ func viterbi(obs []rune, states []byte) (float64, []byte) {
 		}
 		path = newPath
 	}
-	ps := make(probStates, 0)
-	for _, y := range []byte{'E', 'S'} {
-		ps = append(ps, &probState{V[len(obs)-1][y], y})
+	ps := probStates{
+		&probState{V[len(obs)-1]['E'], 'E'},
+		&probState{V[len(obs)-1]['S'], 'S'},
 	}
 	sort.Sort(sort.Reverse(ps))
 	v := ps[0]

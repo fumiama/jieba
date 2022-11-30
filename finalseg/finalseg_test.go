@@ -7,8 +7,7 @@ import (
 
 func TestViterbi(t *testing.T) {
 	obs := "我们是程序员"
-	states := []byte{'B', 'M', 'E', 'S'}
-	prob, path := viterbi([]rune(obs), states)
+	prob, path := viterbi([]rune(obs), 'B', 'M', 'E', 'S')
 	if math.Abs(prob+39.68824128493802) > 1e-10 {
 		t.Fatal(prob)
 	}
