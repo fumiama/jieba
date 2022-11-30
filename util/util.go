@@ -1,4 +1,4 @@
-// Package util contains some util functions used by jiebago.
+// Package util contains some util functions used by jieba.
 package util
 
 import "regexp"

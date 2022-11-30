@@ -37,7 +37,7 @@ func cutHan(sentence string) []string {
 }
 
 // Cut cuts sentence into words using Hidden Markov Model with Viterbi
-// algorithm. It is used by Jiebago for unknonw words.
+// algorithm. It is used by jieba for unknonw words.
 func Cut(sentence string) []string {
 	result := make([]string, 0, 10)
 	s := sentence

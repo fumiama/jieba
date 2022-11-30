@@ -106,7 +106,8 @@ func (u *undirectWeightedGraph) rank() Segments {
 	result := make(Segments, len(ws))
 	i := 0
 	for n, w := range ws {
-		result[i] = &Segment{text: n, weight: (w - minRank/10.0) / (maxRank - minRank/10.0)}
+		result[i].text = n
+		result[i].weight = (w - minRank/10.0) / (maxRank - minRank/10.0)
 		i++
 	}
 	sort.Sort(sort.Reverse(result))

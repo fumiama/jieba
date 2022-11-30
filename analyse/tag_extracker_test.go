@@ -228,29 +228,29 @@ var (
 雖然沒有藉口
 `
 	LyciWeight = Segments{
-		&Segment{text: "所謂", weight: 1.010262},
-		&Segment{text: "是否", weight: 0.738650},
-		&Segment{text: "一般", weight: 0.607600},
-		&Segment{text: "雖然", weight: 0.336754},
-		&Segment{text: "退縮", weight: 0.336754},
-		&Segment{text: "肌迫", weight: 0.336754},
-		&Segment{text: "矯作", weight: 0.336754},
-		&Segment{text: "沒有", weight: 0.336754},
-		&Segment{text: "怯懦", weight: 0.271099},
-		&Segment{text: "隨便", weight: 0.168377},
+		Segment{text: "所謂", weight: 1.010262},
+		Segment{text: "是否", weight: 0.738650},
+		Segment{text: "一般", weight: 0.607600},
+		Segment{text: "雖然", weight: 0.336754},
+		Segment{text: "退縮", weight: 0.336754},
+		Segment{text: "肌迫", weight: 0.336754},
+		Segment{text: "矯作", weight: 0.336754},
+		Segment{text: "沒有", weight: 0.336754},
+		Segment{text: "怯懦", weight: 0.271099},
+		Segment{text: "隨便", weight: 0.168377},
 	}
 
 	LyciWeight2 = Segments{
-		&Segment{text: "所謂", weight: 1.215739},
-		&Segment{text: "一般", weight: 0.731179},
-		&Segment{text: "雖然", weight: 0.405246},
-		&Segment{text: "退縮", weight: 0.405246},
-		&Segment{text: "肌迫", weight: 0.405246},
-		&Segment{text: "矯作", weight: 0.405246},
-		&Segment{text: "怯懦", weight: 0.326238},
-		&Segment{text: "逼不得已", weight: 0.202623},
-		&Segment{text: "右銘", weight: 0.202623},
-		&Segment{text: "寬闊", weight: 0.202623},
+		Segment{text: "所謂", weight: 1.215739},
+		Segment{text: "一般", weight: 0.731179},
+		Segment{text: "雖然", weight: 0.405246},
+		Segment{text: "退縮", weight: 0.405246},
+		Segment{text: "肌迫", weight: 0.405246},
+		Segment{text: "矯作", weight: 0.405246},
+		Segment{text: "怯懦", weight: 0.326238},
+		Segment{text: "逼不得已", weight: 0.202623},
+		Segment{text: "右銘", weight: 0.202623},
+		Segment{text: "寬闊", weight: 0.202623},
 	}
 )
 

@@ -1,7 +1,7 @@
-#结巴分词 Go 语言版：Jiebago
+#结巴分词 Go 语言版：jieba
 
 
-[![Build Status](https://travis-ci.org/wangbin/jiebago.png?branch=master)](https://travis-ci.org/wangbin/jiebago) [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
+[![Build Status](https://travis-ci.org/wangbin/jieba.png?branch=master)](https://travis-ci.org/wangbin/jieba) [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
 
 [结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，Iiebago 是结巴分词的 Golang 语言实现。
 
@@ -23,7 +23,7 @@ import (
         "github.com/fumiama/jieba"
 )
 
-var seg jiebago.Segmenter
+var seg jieba.Segmenter
 
 func init() {
         seg.LoadDictionary("dict.txt")

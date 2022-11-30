@@ -7,7 +7,7 @@ import (
 
 	"github.com/blevesearch/bleve/analysis"
 	"github.com/blevesearch/bleve/registry"
-	jiebago "github.com/fumiama/jieba"
+	jieba "github.com/fumiama/jieba"
 )
 
 // Name is the jieba tokenizer name.
@@ -15,9 +15,9 @@ const Name = "jieba"
 
 var ideographRegexp = regexp.MustCompile(`\p{Han}+`)
 
-// JiebaTokenizer is the beleve tokenizer for jiebago.
+// JiebaTokenizer is the beleve tokenizer for jieba.
 type JiebaTokenizer struct {
-	seg             jiebago.Segmenter
+	seg             jieba.Segmenter
 	hmm, searchMode bool
 }
 
@@ -42,7 +42,7 @@ Parameters:
 	this word into "交换", "换机", which are valid Chinese words.
 */
 func NewJiebaTokenizer(dictFilePath string, hmm, searchMode bool) (analysis.Tokenizer, error) {
-	var seg jiebago.Segmenter
+	var seg jieba.Segmenter
 	err := seg.LoadDictionary(dictFilePath)
 	return &JiebaTokenizer{
 		seg:        seg,

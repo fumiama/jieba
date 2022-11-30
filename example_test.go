@@ -1,4 +1,4 @@
-package jiebago
+package jieba
 
 import (
 	"fmt"

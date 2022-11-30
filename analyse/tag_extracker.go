@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	jiebago "github.com/fumiama/jieba"
+	jieba "github.com/fumiama/jieba"
 )
 
 // Segment represents a word with weight.
@@ -26,7 +26,7 @@ func (s Segment) Weight() float64 {
 }
 
 // Segments represents a slice of Segment.
-type Segments []*Segment
+type Segments []Segment
 
 func (ss Segments) Len() int {
 	return len(ss)
@@ -46,7 +46,7 @@ func (ss Segments) Swap(i, j int) {
 
 // TagExtracter is used to extract tags from sentence.
 type TagExtracter struct {
-	seg      *jiebago.Segmenter
+	seg      *jieba.Segmenter
 	idf      *Idf
 	stopWord *StopWord
 }
@@ -54,7 +54,7 @@ type TagExtracter struct {
 // LoadDictionary reads the given filename and create a new dictionary.
 func (t *TagExtracter) LoadDictionary(fileName string) error {
 	t.stopWord = NewStopWord()
-	t.seg = new(jiebago.Segmenter)
+	t.seg = new(jieba.Segmenter)
 	return t.seg.LoadDictionary(fileName)
 }
 
@@ -72,7 +72,7 @@ func (t *TagExtracter) LoadStopWords(fileName string) error {
 
 // ExtractTags extracts the topK key words from sentence.
 func (t *TagExtracter) ExtractTags(sentence string, topK int) (tags Segments) {
-	freqMap := make(map[string]float64)
+	freqMap := make(map[string]uint64, 256)
 
 	for _, w := range t.seg.Cut(sentence, true) {
 		w = strings.TrimSpace(w)
@@ -82,28 +82,25 @@ func (t *TagExtracter) ExtractTags(sentence string, topK int) (tags Segments) {
 		if t.stopWord.IsStopWord(w) {
 			continue
 		}
-		if f, ok := freqMap[w]; ok {
-			freqMap[w] = f + 1.0
+		if v, ok := freqMap[w]; ok {
+			freqMap[w] = v + 1
 		} else {
-			freqMap[w] = 1.0
+			freqMap[w] = 1
 		}
 	}
-	total := 0.0
+	total := uint64(0)
 	for _, freq := range freqMap {
 		total += freq
-	}
-	for k, v := range freqMap {
-		freqMap[k] = v / total
 	}
 	ws := make(Segments, 0)
 	var s Segment
 	for k, v := range freqMap {
 		if freq, ok := t.idf.Frequency(k); ok {
-			s = Segment{text: k, weight: freq * v}
+			s = Segment{text: k, weight: freq * float64(v) / float64(total)}
 		} else {
-			s = Segment{text: k, weight: t.idf.median * v}
+			s = Segment{text: k, weight: t.idf.median * float64(v) / float64(total)}
 		}
-		ws = append(ws, &s)
+		ws = append(ws, s)
 	}
 	sort.Sort(sort.Reverse(ws))
 	if len(ws) > topK {

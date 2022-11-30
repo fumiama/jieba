@@ -1,5 +1,5 @@
 // Package dictionary contains a interface and wraps all io related work.
-// It is used by jiebago module to read/write files.
+// It is used by jieba module to read/write files.
 package dictionary
 
 import (
