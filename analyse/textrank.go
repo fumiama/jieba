@@ -1,25 +1,27 @@
 package analyse
 
 import (
+	"hash/crc64"
 	"math"
 	"sort"
 
 	"github.com/fumiama/jieba/posseg"
+	"github.com/fumiama/jieba/util/helper"
 )
 
 const dampingFactor = 0.85
 
 var (
-	defaultAllowPOS = []string{"ns", "n", "vn", "v"}
+	defaultAllowPOS = [...]string{"ns", "n", "vn", "v"}
 )
 
 type edge struct {
+	weight float64
 	start  string
 	end    string
-	weight float64
 }
 
-type edges []edge
+type edges []*edge
 
 func (es edges) Len() int {
 	return len(es)
@@ -39,25 +41,25 @@ type undirectWeightedGraph struct {
 }
 
 func newUndirectWeightedGraph() *undirectWeightedGraph {
-	u := new(undirectWeightedGraph)
-	u.graph = make(map[string]edges)
-	u.keys = make(sort.StringSlice, 0)
-	return u
+	return &undirectWeightedGraph{
+		graph: make(map[string]edges, 256),
+		keys:  make(sort.StringSlice, 0, 256),
+	}
 }
 
 func (u *undirectWeightedGraph) addEdge(start, end string, weight float64) {
 	if _, ok := u.graph[start]; !ok {
 		u.keys = append(u.keys, start)
-		u.graph[start] = edges{edge{start: start, end: end, weight: weight}}
+		u.graph[start] = edges{&edge{start: start, end: end, weight: weight}}
 	} else {
-		u.graph[start] = append(u.graph[start], edge{start: start, end: end, weight: weight})
+		u.graph[start] = append(u.graph[start], &edge{start: start, end: end, weight: weight})
 	}
 
 	if _, ok := u.graph[end]; !ok {
 		u.keys = append(u.keys, end)
-		u.graph[end] = edges{edge{start: end, end: start, weight: weight}}
+		u.graph[end] = edges{&edge{start: end, end: start, weight: weight}}
 	} else {
-		u.graph[end] = append(u.graph[end], edge{start: end, end: start, weight: weight})
+		u.graph[end] = append(u.graph[end], &edge{start: end, end: start, weight: weight})
 	}
 }
 
@@ -66,8 +68,8 @@ func (u *undirectWeightedGraph) rank() Segments {
 		sort.Sort(u.keys)
 	}
 
-	ws := make(map[string]float64)
-	outSum := make(map[string]float64)
+	ws := make(map[string]float64, len(u.graph)*2)
+	outSum := make(map[string]float64, len(u.graph)*2)
 
 	wsdef := 1.0
 	if len(u.graph) > 0 {
@@ -101,9 +103,11 @@ func (u *undirectWeightedGraph) rank() Segments {
 			maxRank = w
 		}
 	}
-	result := make(Segments, 0)
+	result := make(Segments, len(ws))
+	i := 0
 	for n, w := range ws {
-		result = append(result, Segment{text: n, weight: (w - minRank/10.0) / (maxRank - minRank/10.0)})
+		result[i] = &Segment{text: n, weight: (w - minRank/10.0) / (maxRank - minRank/10.0)}
+		i++
 	}
 	sort.Sort(sort.Reverse(result))
 	return result
@@ -112,12 +116,20 @@ func (u *undirectWeightedGraph) rank() Segments {
 // TextRankWithPOS extracts keywords from sentence using TextRank algorithm.
 // Parameter allowPOS allows a customized pos list.
 func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []string) Segments {
-	posFilt := make(map[string]int)
+	posFilt := make(map[string]int, len(allowPOS)*2)
 	for _, pos := range allowPOS {
 		posFilt[pos] = 1
 	}
 	g := newUndirectWeightedGraph()
-	cm := make(map[[2]string]float64)
+	cm := make(map[uint64]float64, 256)
+	hm := make(map[uint64][2]string, 256)
+	gethash := func(a, b string) uint64 {
+		h := crc64.New(crc64.MakeTable(crc64.ISO))
+		h.Write(helper.StringToBytes(a))
+		h.Write([]byte("\t"))
+		h.Write(helper.StringToBytes(b))
+		return h.Sum64()
+	}
 	span := 5
 	var pairs []posseg.Segment
 	for pair := range t.seg.Cut(sentence, true) {
@@ -129,15 +141,18 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 				if _, ok := posFilt[pairs[j].Pos()]; !ok {
 					continue
 				}
-				if _, ok := cm[[2]string{pairs[i].Text(), pairs[j].Text()}]; !ok {
-					cm[[2]string{pairs[i].Text(), pairs[j].Text()}] = 1.0
+				h := gethash(pairs[i].Text(), pairs[j].Text())
+				if _, ok := cm[h]; !ok {
+					cm[h] = 1.0
+					hm[h] = [2]string{pairs[i].Text(), pairs[j].Text()}
 				} else {
-					cm[[2]string{pairs[i].Text(), pairs[j].Text()}] += 1.0
+					cm[h] += 1.0
 				}
 			}
 		}
 	}
-	for startEnd, weight := range cm {
+	for h, weight := range cm {
+		startEnd := hm[h]
 		g.addEdge(startEnd[0], startEnd[1], weight)
 	}
 	tags := g.rank()
@@ -150,7 +165,7 @@ func (t *TextRanker) TextRankWithPOS(sentence string, topK int, allowPOS []strin
 // TextRank extract keywords from sentence using TextRank algorithm.
 // Parameter topK specify how many top keywords to be returned at most.
 func (t *TextRanker) TextRank(sentence string, topK int) Segments {
-	return t.TextRankWithPOS(sentence, topK, defaultAllowPOS)
+	return t.TextRankWithPOS(sentence, topK, defaultAllowPOS[:])
 }
 
 // TextRanker is used to extract tags from sentence.

@@ -26,7 +26,7 @@ func (s Segment) Weight() float64 {
 }
 
 // Segments represents a slice of Segment.
-type Segments []Segment
+type Segments []*Segment
 
 func (ss Segments) Len() int {
 	return len(ss)
@@ -103,7 +103,7 @@ func (t *TagExtracter) ExtractTags(sentence string, topK int) (tags Segments) {
 		} else {
 			s = Segment{text: k, weight: t.idf.median * v}
 		}
-		ws = append(ws, s)
+		ws = append(ws, &s)
 	}
 	sort.Sort(sort.Reverse(ws))
 	if len(ws) > topK {
