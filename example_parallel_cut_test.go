@@ -16,7 +16,7 @@ type line struct {
 }
 
 var (
-	segmenter  = Segmenter{}
+	segmenter  *Segmenter
 	numThreads = runtime.NumCPU()
 	task       = make(chan line, numThreads)
 	result     = make(chan line, numThreads)
@@ -35,15 +35,18 @@ func Example_parallelCut() {
 	// Set the number of goroutines
 	runtime.GOMAXPROCS(numThreads)
 
-	// Load dictionary
-	segmenter.LoadDictionaryAt("dict.txt")
-
 	// open file for segmentation
 	file, err := os.Open("README.md")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
+
+	// Load dictionary
+	segmenter, err = LoadDictionaryAt("dict.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// start worker routines
 	for i := 0; i < numThreads; i++ {

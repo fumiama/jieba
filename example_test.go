@@ -5,8 +5,10 @@ import (
 )
 
 func Example() {
-	var seg Segmenter
-	seg.LoadDictionaryAt("dict.txt")
+	seg, err := LoadDictionaryAt("dict.txt")
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Print("【全模式】：")
 	fmt.Println(seg.CutAll("我来到北京清华大学"))
@@ -27,8 +29,10 @@ func Example() {
 }
 
 func Example_suggestFrequency() {
-	var seg Segmenter
-	seg.LoadDictionaryAt("dict.txt")
+	seg, err := LoadDictionaryAt("dict.txt")
+	if err != nil {
+		panic(err)
+	}
 
 	sentence := "超敏C反应蛋白是什么？"
 	fmt.Print("Before:")
@@ -75,8 +79,10 @@ func Example_suggestFrequency() {
 }
 
 func Example_loadUserDictionary() {
-	var seg Segmenter
-	seg.LoadDictionaryAt("dict.txt")
+	seg, err := LoadDictionaryAt("dict.txt")
+	if err != nil {
+		panic(err)
+	}
 
 	sentence := "李小福是创新办主任也是云计算方面的专家"
 	fmt.Print("Before:")

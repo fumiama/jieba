@@ -18,7 +18,7 @@ var ideographRegexp = regexp.MustCompile(`\p{Han}+`)
 
 // JiebaTokenizer is the beleve tokenizer for jieba.
 type JiebaTokenizer struct {
-	seg             jieba.Segmenter
+	seg             *jieba.Segmenter
 	hmm, searchMode bool
 }
 
@@ -43,8 +43,7 @@ Parameters:
 	this word into "交换", "换机", which are valid Chinese words.
 */
 func NewJiebaTokenizer(dictFile fs.File, hmm, searchMode bool) (analysis.Tokenizer, error) {
-	var seg jieba.Segmenter
-	err := seg.LoadDictionary(dictFile)
+	seg, err := jieba.LoadDictionary(dictFile)
 	return &JiebaTokenizer{
 		seg:        seg,
 		hmm:        hmm,
@@ -73,8 +72,7 @@ Parameters:
 	this word into "交换", "换机", which are valid Chinese words.
 */
 func NewJiebaTokenizerAt(dictFilePath string, hmm, searchMode bool) (analysis.Tokenizer, error) {
-	var seg jieba.Segmenter
-	err := seg.LoadDictionaryAt(dictFilePath)
+	seg, err := jieba.LoadDictionaryAt(dictFilePath)
 	return &JiebaTokenizer{
 		seg:        seg,
 		hmm:        hmm,

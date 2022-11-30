@@ -53,17 +53,17 @@ type TagExtracter struct {
 }
 
 // LoadDictionary reads the given filename and create a new dictionary.
-func (t *TagExtracter) LoadDictionary(file fs.File) error {
+func (t *TagExtracter) LoadDictionary(file fs.File) (err error) {
 	t.stopWord = NewStopWord()
-	t.seg = new(jieba.Segmenter)
-	return t.seg.LoadDictionary(file)
+	t.seg, err = jieba.LoadDictionary(file)
+	return
 }
 
 // LoadDictionaryAt reads the given filename and create a new dictionary.
-func (t *TagExtracter) LoadDictionaryAt(fileName string) error {
+func (t *TagExtracter) LoadDictionaryAt(file string) (err error) {
 	t.stopWord = NewStopWord()
-	t.seg = new(jieba.Segmenter)
-	return t.seg.LoadDictionaryAt(fileName)
+	t.seg, err = jieba.LoadDictionaryAt(file)
+	return
 }
 
 // LoadIdf reads the given file and create a new Idf dictionary.

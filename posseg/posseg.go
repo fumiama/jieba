@@ -123,12 +123,10 @@ func (seg *Segmenter) cutDetail(sentence string) (results []Segment) {
 func (seg *Segmenter) dag(runes []rune) [][]int {
 	n := len(runes)
 	dag := make([][]int, n)
-	var frag []rune
-	var i int
 	for k := 0; k < n; k++ {
 		dag[k] = make([]int, 0, 64)
-		i = k
-		frag = runes[k : k+1]
+		i := k
+		frag := runes[k : k+1]
 		for {
 			freq, ok := (*Dictionary)(seg).Frequency(string(frag))
 			if !ok {
@@ -160,9 +158,9 @@ func (seg *Segmenter) calc(runes []rune) []*route {
 	n := len(runes)
 	rs := make([]*route, n+1)
 	rs[n] = &route{frequency: 0.0, index: 0}
-	var r *route
 	for idx := n - 1; idx >= 0; idx-- {
 		for _, i := range dag[idx] {
+			var r *route
 			if freq, ok := (*Dictionary)(seg).Frequency(string(runes[idx : i+1])); ok {
 				r = &route{frequency: math.Log(freq) - (*Dictionary)(seg).logTotal + rs[i+1].frequency, index: i}
 			} else {

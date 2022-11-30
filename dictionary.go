@@ -10,9 +10,9 @@ import (
 
 // A Dictionary represents a thread-safe dictionary used for word segmentation.
 type Dictionary struct {
+	sync.RWMutex
 	total, logTotal float64
 	freqMap         map[string]float64
-	sync.RWMutex
 }
 
 // Load loads all tokens

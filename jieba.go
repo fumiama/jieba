@@ -21,23 +21,21 @@ var (
 )
 
 // Segmenter is a Chinese words segmentation struct.
-type Segmenter struct {
-	dict *Dictionary
-}
+type Segmenter Dictionary
 
 // Frequency returns a word's frequency and existence
 func (seg *Segmenter) Frequency(word string) (float64, bool) {
-	return seg.dict.Frequency(word)
+	return (*Dictionary)(seg).Frequency(word)
 }
 
 // AddWord adds a new word with frequency to dictionary
 func (seg *Segmenter) AddWord(word string, frequency float64) {
-	seg.dict.AddToken(dictionary.NewToken(word, frequency, ""))
+	(*Dictionary)(seg).AddToken(dictionary.NewToken(word, frequency, ""))
 }
 
 // DeleteWord removes a word from dictionary
 func (seg *Segmenter) DeleteWord(word string) {
-	seg.dict.AddToken(dictionary.NewToken(word, 0.0, ""))
+	(*Dictionary)(seg).AddToken(dictionary.NewToken(word, 0.0, ""))
 }
 
 /*
@@ -58,79 +56,79 @@ func (seg *Segmenter) SuggestFrequency(words ...string) float64 {
 	frequency := 1.0
 	if len(words) > 1 {
 		for _, word := range words {
-			if freq, ok := seg.dict.Frequency(word); ok {
+			if freq, ok := (*Dictionary)(seg).Frequency(word); ok {
 				frequency *= freq
 			}
-			frequency /= seg.dict.total
+			frequency /= (*Dictionary)(seg).total
 		}
-		frequency, _ = math.Modf(frequency * seg.dict.total)
+		frequency, _ = math.Modf(frequency * (*Dictionary)(seg).total)
 		wordFreq := 0.0
-		if freq, ok := seg.dict.Frequency(strings.Join(words, "")); ok {
+		if freq, ok := (*Dictionary)(seg).Frequency(strings.Join(words, "")); ok {
 			wordFreq = freq
 		}
 		if wordFreq < frequency {
 			frequency = wordFreq
 		}
-	} else {
-		word := words[0]
-		for _, segment := range seg.Cut(word, false) {
-			if freq, ok := seg.dict.Frequency(segment); ok {
-				frequency *= freq
-			}
-			frequency /= seg.dict.total
+		return frequency
+	}
+	word := words[0]
+	for _, segment := range seg.Cut(word, false) {
+		if freq, ok := (*Dictionary)(seg).Frequency(segment); ok {
+			frequency *= freq
 		}
-		frequency, _ = math.Modf(frequency * seg.dict.total)
-		frequency += 1.0
-		wordFreq := 1.0
-		if freq, ok := seg.dict.Frequency(word); ok {
-			wordFreq = freq
-		}
-		if wordFreq > frequency {
-			frequency = wordFreq
-		}
+		frequency /= (*Dictionary)(seg).total
+	}
+	frequency, _ = math.Modf(frequency * (*Dictionary)(seg).total)
+	frequency += 1.0
+	wordFreq := 1.0
+	if freq, ok := (*Dictionary)(seg).Frequency(word); ok {
+		wordFreq = freq
+	}
+	if wordFreq > frequency {
+		frequency = wordFreq
 	}
 	return frequency
 }
 
 // LoadDictionary loads dictionary from given file name. Everytime
 // LoadDictionary is called, previously loaded dictionary will be cleard.
-func (seg *Segmenter) LoadDictionary(file fs.File) error {
-	seg.dict = &Dictionary{freqMap: make(map[string]float64)}
-	return seg.dict.loadDictionary(file)
+func LoadDictionary(file fs.File) (*Segmenter, error) {
+	d := &Dictionary{freqMap: make(map[string]float64)}
+	err := d.loadDictionary(file)
+	return (*Segmenter)(d), err
 }
 
 // LoadDictionaryAt loads dictionary from given file name. Everytime
 // LoadDictionaryAt is called, previously loaded dictionary will be cleard.
-func (seg *Segmenter) LoadDictionaryAt(file string) error {
-	seg.dict = &Dictionary{freqMap: make(map[string]float64)}
-	return seg.dict.loadDictionaryAt(file)
+func LoadDictionaryAt(file string) (*Segmenter, error) {
+	d := &Dictionary{freqMap: make(map[string]float64)}
+	err := d.loadDictionaryAt(file)
+	return (*Segmenter)(d), err
 }
 
 // LoadUserDictionary loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
 func (seg *Segmenter) LoadUserDictionary(file fs.File) error {
-	return seg.dict.loadDictionary(file)
+	return (*Dictionary)(seg).loadDictionary(file)
 }
 
 // LoadUserDictionaryAt loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
 func (seg *Segmenter) LoadUserDictionaryAt(file string) error {
-	return seg.dict.loadDictionaryAt(file)
+	return (*Dictionary)(seg).loadDictionaryAt(file)
 }
 
-func (seg *Segmenter) dag(runes []rune) map[int][]int {
-	dag := make(map[int][]int)
+func (seg *Segmenter) dag(runes []rune) [][]int {
 	n := len(runes)
-	var frag []rune
-	var i int
+	dag := make([][]int, n)
 	for k := 0; k < n; k++ {
-		dag[k] = make([]int, 0)
-		i = k
-		frag = runes[k : k+1]
+		dag[k] = make([]int, 0, 64)
+		i := k
+		frag := runes[k : k+1]
 		for {
-			freq, ok := seg.dict.Frequency(string(frag))
+			freq, ok := (*Dictionary)(seg).Frequency(string(frag))
 			if !ok {
 				break
 			}
@@ -155,20 +153,20 @@ type route struct {
 	index     int
 }
 
-func (seg *Segmenter) calc(runes []rune) map[int]route {
+func (seg *Segmenter) calc(runes []rune) []*route {
 	dag := seg.dag(runes)
 	n := len(runes)
-	rs := make(map[int]route)
-	rs[n] = route{frequency: 0.0, index: 0}
-	var r route
+	rs := make([]*route, n+1)
+	rs[n] = &route{frequency: 0.0, index: 0}
 	for idx := n - 1; idx >= 0; idx-- {
 		for _, i := range dag[idx] {
-			if freq, ok := seg.dict.Frequency(string(runes[idx : i+1])); ok {
-				r = route{frequency: math.Log(freq) - seg.dict.logTotal + rs[i+1].frequency, index: i}
+			var r *route
+			if freq, ok := (*Dictionary)(seg).Frequency(string(runes[idx : i+1])); ok {
+				r = &route{frequency: math.Log(freq) - (*Dictionary)(seg).logTotal + rs[i+1].frequency, index: i}
 			} else {
-				r = route{frequency: math.Log(1.0) - seg.dict.logTotal + rs[i+1].frequency, index: i}
+				r = &route{frequency: math.Log(1.0) - (*Dictionary)(seg).logTotal + rs[i+1].frequency, index: i}
 			}
-			if v, ok := rs[idx]; !ok {
+			if v := rs[idx]; v == nil {
 				rs[idx] = r
 			} else {
 				if v.frequency < r.frequency || (v.frequency == r.frequency && v.index < r.index) {
@@ -190,14 +188,11 @@ type cutFunc func(sentence string) []string
 
 func (seg *Segmenter) cutDAG(sentence string) []string {
 	result := make([]string, 0, int(float32(len(sentence))/RatioLetterWord)+1)
-
 	runes := []rune(sentence)
 	routes := seg.calc(runes)
-	var y int
-	length := len(runes)
-	var buf []rune
-	for x := 0; x < length; {
-		y = routes[x].index + 1
+	buf := make([]rune, 0, 256)
+	for x := 0; x < len(runes); {
+		y := routes[x].index + 1
 		frag := runes[x:y]
 		if y-x == 1 {
 			buf = append(buf, frag...)
@@ -207,7 +202,7 @@ func (seg *Segmenter) cutDAG(sentence string) []string {
 				if len(buf) == 1 {
 					result = append(result, bufString)
 				} else {
-					if v, ok := seg.dict.Frequency(bufString); !ok || v == 0.0 {
+					if v, ok := (*Dictionary)(seg).Frequency(bufString); !ok || v == 0.0 {
 						result = append(result, finalseg.Cut(bufString)...)
 					} else {
 						for _, elem := range buf {
@@ -215,7 +210,7 @@ func (seg *Segmenter) cutDAG(sentence string) []string {
 						}
 					}
 				}
-				buf = make([]rune, 0)
+				buf = buf[:0]
 			}
 			result = append(result, string(frag))
 		}
@@ -227,7 +222,7 @@ func (seg *Segmenter) cutDAG(sentence string) []string {
 		if len(buf) == 1 {
 			result = append(result, bufString)
 		} else {
-			if v, ok := seg.dict.Frequency(bufString); !ok || v == 0.0 {
+			if v, ok := (*Dictionary)(seg).Frequency(bufString); !ok || v == 0.0 {
 				result = append(result, finalseg.Cut(bufString)...)
 			} else {
 				for _, elem := range buf {
@@ -242,14 +237,11 @@ func (seg *Segmenter) cutDAG(sentence string) []string {
 
 func (seg *Segmenter) cutDAGNoHMM(sentence string) []string {
 	result := make([]string, 0, int(float32(len(sentence))/RatioLetterWord)+1)
-
 	runes := []rune(sentence)
 	routes := seg.calc(runes)
-	var y int
-	length := len(runes)
-	var buf []rune
-	for x := 0; x < length; {
-		y = routes[x].index + 1
+	buf := make([]rune, 0, 256)
+	for x := 0; x < len(runes); {
+		y := routes[x].index + 1
 		frag := runes[x:y]
 		if reEng.MatchString(string(frag)) && len(frag) == 1 {
 			buf = append(buf, frag...)
@@ -258,7 +250,7 @@ func (seg *Segmenter) cutDAGNoHMM(sentence string) []string {
 		}
 		if len(buf) > 0 {
 			result = append(result, string(buf))
-			buf = make([]rune, 0)
+			buf = buf[:0]
 		}
 		result = append(result, string(frag))
 		x = y
@@ -307,17 +299,11 @@ func (seg *Segmenter) Cut(sentence string, hmm bool) []string {
 
 func (seg *Segmenter) cutAll(sentence string) []string {
 	result := make([]string, 0, int(float32(len(sentence))/RatioLetterWord)+1)
-
 	runes := []rune(sentence)
 	dag := seg.dag(runes)
 	start := -1
-	ks := make([]int, len(dag))
-	for k := range dag {
-		ks[k] = k
-	}
-	var l []int
-	for k := range ks {
-		l = dag[k]
+	for k := 0; k < len(dag); k++ {
+		l := dag[k]
 		if len(l) == 1 && k > start {
 			result = append(result, string(runes[k:l[0]+1]))
 			start = l[0]
@@ -367,10 +353,9 @@ func (seg *Segmenter) CutForSearch(sentence string, hmm bool) []string {
 			if len(runes) <= increment {
 				continue
 			}
-			var gram string
 			for i := 0; i < len(runes)-increment+1; i++ {
-				gram = string(runes[i : i+increment])
-				if v, ok := seg.dict.Frequency(gram); ok && v > 0.0 {
+				gram := string(runes[i : i+increment])
+				if v, ok := (*Dictionary)(seg).Frequency(gram); ok && v > 0.0 {
 					result = append(result, gram)
 				}
 			}

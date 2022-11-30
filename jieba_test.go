@@ -3,7 +3,7 @@ package jieba
 import "testing"
 
 var (
-	seg          Segmenter
+	seg          *Segmenter
 	testContents = []string{
 		"这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。",
 		"我不喜欢日本和服。",
@@ -616,7 +616,11 @@ var (
 )
 
 func init() {
-	seg.LoadDictionaryAt("dict.txt")
+	var err error
+	seg, err = LoadDictionaryAt("dict.txt")
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestCutDAG(t *testing.T) {
@@ -715,7 +719,11 @@ func TestCutForSearch(t *testing.T) {
 
 func TestLoadDictionary(t *testing.T) {
 	var result []string
-	seg.LoadDictionaryAt("foobar.txt")
+	var err error
+	seg, err = LoadDictionaryAt("foobar.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
 	for index, content := range testContents {
 		result = seg.Cut(content, true)
 		if len(result) != len(userDictCutResult[index]) {
@@ -728,7 +736,10 @@ func TestLoadDictionary(t *testing.T) {
 			}
 		}
 	}
-	seg.LoadDictionaryAt("dict.txt")
+	seg, err = LoadDictionaryAt("dict.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestLoadUserDictionary(t *testing.T) {
@@ -771,7 +782,11 @@ func TestLoadUserDictionary(t *testing.T) {
 			t.Fatal(word)
 		}
 	}
-	seg.LoadDictionaryAt("dict.txt")
+	var err error
+	seg, err = LoadDictionaryAt("dict.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func BenchmarkCutNoHMM(b *testing.B) {
