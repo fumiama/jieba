@@ -7,9 +7,6 @@ import (
 	"github.com/blevesearch/bleve/registry"
 )
 
-type JiebaAnalyzer struct {
-}
-
 func analyzerConstructor(config map[string]interface{}, cache *registry.Cache) (*analysis.Analyzer, error) {
 	tokenizerName, ok := config["tokenizer"].(string)
 	if !ok {

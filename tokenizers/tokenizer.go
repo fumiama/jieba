@@ -8,6 +8,7 @@ import (
 	"github.com/blevesearch/bleve/analysis"
 	"github.com/blevesearch/bleve/registry"
 	jieba "github.com/fumiama/jieba"
+	"github.com/fumiama/jieba/util/helper"
 )
 
 // Name is the jieba tokenizer name.
@@ -83,30 +84,26 @@ func NewJiebaTokenizerAt(dictFilePath string, hmm, searchMode bool) (analysis.To
 
 // Tokenize cuts input into bleve token stream.
 func (jt *JiebaTokenizer) Tokenize(input []byte) analysis.TokenStream {
-	rv := make(analysis.TokenStream, 0)
-	runeStart := 0
+	rv := make(analysis.TokenStream, 0, 256)
 	start := 0
 	end := 0
 	pos := 1
-	var width int
-	var gram string
 	for _, word := range jt.seg.Cut(string(input), jt.hmm) {
 		if jt.searchMode {
 			runes := []rune(word)
-			width = len(runes)
+			width := len(runes)
 			for _, step := range [2]int{2, 3} {
 				if width <= step {
 					continue
 				}
 				for i := 0; i < width-step+1; i++ {
-					gram = string(runes[i : i+step])
-					gramLen := len(gram)
+					gram := string(runes[i : i+step])
 					if frequency, ok := jt.seg.Frequency(gram); ok && frequency > 0 {
 						gramStart := start + len(string(runes[:i]))
 						token := analysis.Token{
-							Term:     []byte(gram),
+							Term:     helper.StringToBytes(gram),
 							Start:    gramStart,
-							End:      gramStart + gramLen,
+							End:      gramStart + len(gram),
 							Position: pos,
 							Type:     detectTokenType(gram),
 						}
@@ -126,7 +123,6 @@ func (jt *JiebaTokenizer) Tokenize(input []byte) analysis.TokenStream {
 		}
 		rv = append(rv, &token)
 		pos++
-		runeStart += width
 		start = end
 	}
 	return rv
