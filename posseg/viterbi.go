@@ -32,33 +32,32 @@ func (pss probStates) Swap(i, j int) {
 }
 
 func viterbi(obs []rune) []tag {
-	obsLength := len(obs)
-	V := make([]map[uint16]float64, obsLength)
+	V := make([]map[uint16]float64, len(obs))
 	V[0] = make(map[uint16]float64)
-	memPath := make([]map[uint16]uint16, obsLength)
+	memPath := make([]map[uint16]uint16, len(obs))
 	memPath[0] = make(map[uint16]uint16)
 	ys := charStateTab.get(obs[0]) // default is all_states
 	for _, y := range ys {
 		V[0][y] = probEmit[y].get(obs[0]) + probStart[y]
 		memPath[0][y] = 0
 	}
-	for t := 1; t < obsLength; t++ {
-		var prevStates []uint16
+	for t := 1; t < len(obs); t++ {
+		prevStates := make([]uint16, 0, 256)
 		for x := range memPath[t-1] {
 			if len(probTrans[x]) > 0 {
 				prevStates = append(prevStates, x)
 			}
 		}
-		//use Go's map to implement Python's Set()
-		prevStatesExpectNext := make(map[uint16]int)
+		// use Go's map to implement Python's Set()
+		prevStatesExpectNext := make(map[uint16]struct{}, 256)
 		for _, x := range prevStates {
 			for y := range probTrans[x] {
-				prevStatesExpectNext[y] = 1
+				prevStatesExpectNext[y] = struct{}{}
 			}
 		}
 		tmpObsStates := charStateTab.get(obs[t])
 
-		var obsStates []uint16
+		obsStates := make([]uint16, 0, 256)
 		for index := range tmpObsStates {
 			if _, ok := prevStatesExpectNext[tmpObsStates[index]]; ok {
 				obsStates = append(obsStates, tmpObsStates[index])
@@ -79,7 +78,8 @@ func viterbi(obs []rune) []tag {
 			for i, y0 := range prevStates {
 				ps = probState{
 					prob:  V[t-1][y0] + probTrans[y0].Get(y) + probEmit[y].get(obs[t]),
-					state: y0}
+					state: y0,
+				}
 				if i == 0 || ps.prob > max.prob || (ps.prob == max.prob && ps.state > max.state) {
 					max = ps
 				}
@@ -88,18 +88,18 @@ func viterbi(obs []rune) []tag {
 			memPath[t][y] = max.state
 		}
 	}
-	last := make(probStates, 0)
-	length := len(memPath)
-	vlength := len(V)
-	for y := range memPath[length-1] {
-		ps := probState{prob: V[vlength-1][y], state: y}
-		last = append(last, ps)
+	last := make(probStates, len(memPath[len(memPath)-1]))
+	i := 0
+	for y := range memPath[len(memPath)-1] {
+		last[i].prob = V[len(V)-1][y]
+		last[i].state = y
+		i++
 	}
 	sort.Sort(sort.Reverse(last))
 	state := last[0].state
 	route := make([]tag, len(obs))
 
-	for i := obsLength - 1; i >= 0; i-- {
+	for i := len(obs) - 1; i >= 0; i-- {
 		route[i] = tag(state)
 		state = memPath[i][state]
 	}
