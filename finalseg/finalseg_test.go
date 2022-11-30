@@ -5,14 +5,6 @@ import (
 	"testing"
 )
 
-func chanToArray(ch chan string) []string {
-	var result []string
-	for word := range ch {
-		result = append(result, word)
-	}
-	return result
-}
-
 func TestViterbi(t *testing.T) {
 	obs := "我们是程序员"
 	states := []byte{'B', 'M', 'E', 'S'}
@@ -29,7 +21,7 @@ func TestViterbi(t *testing.T) {
 
 func TestCutHan(t *testing.T) {
 	obs := "我们是程序员"
-	result := chanToArray(cutHan(obs))
+	result := cutHan(obs)
 	if len(result) != 3 {
 		t.Fatal(result)
 	}
@@ -46,7 +38,7 @@ func TestCutHan(t *testing.T) {
 
 func TestCut(t *testing.T) {
 	sentence := "我们是程序员"
-	result := chanToArray(Cut(sentence))
+	result := Cut(sentence)
 	if len(result) != 3 {
 		t.Fatal(len(result))
 	}
@@ -59,11 +51,11 @@ func TestCut(t *testing.T) {
 	if result[2] != "程序员" {
 		t.Fatal(result[2])
 	}
-	result2 := chanToArray(Cut("I'm a programmer!"))
+	result2 := Cut("I'm a programmer!")
 	if len(result2) != 8 {
 		t.Fatal(result2)
 	}
-	result3 := chanToArray(Cut("程序员average年龄28.6岁。"))
+	result3 := Cut("程序员average年龄28.6岁。")
 	if len(result3) != 6 {
 		t.Fatal(result3)
 	}

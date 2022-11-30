@@ -1,4 +1,4 @@
-package jiebago_test
+package jiebago
 
 import (
 	"bufio"
@@ -8,8 +8,6 @@ import (
 	"runtime"
 	"strings"
 	"time"
-
-	"github.com/wangbin/jiebago"
 )
 
 type line struct {
@@ -18,7 +16,7 @@ type line struct {
 }
 
 var (
-	segmenter  = jiebago.Segmenter{}
+	segmenter  = Segmenter{}
 	numThreads = runtime.NumCPU()
 	task       = make(chan line, numThreads)
 	result     = make(chan line, numThreads)
@@ -26,10 +24,7 @@ var (
 
 func worker() {
 	for l := range task {
-		var segments []string
-		for segment := range segmenter.Cut(l.text, true) {
-			segments = append(segments, segment)
-		}
+		segments := segmenter.Cut(l.text, true)
 
 		l.text = fmt.Sprintf("%s\n", strings.Join(segments, " / "))
 		result <- l

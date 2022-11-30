@@ -1,7 +1,7 @@
 #结巴分词 Go 语言版：Jiebago
 
 
-[![Build Status](https://travis-ci.org/wangbin/jiebago.png?branch=master)](https://travis-ci.org/wangbin/jiebago) [![GoDoc](https://godoc.org/github.com/wangbin/jiebago?status.svg)](https://godoc.org/github.com/wangbin/jiebago)
+[![Build Status](https://travis-ci.org/wangbin/jiebago.png?branch=master)](https://travis-ci.org/wangbin/jiebago) [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
 
 [结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，Iiebago 是结巴分词的 Golang 语言实现。
 
@@ -9,7 +9,7 @@
 ## 安装
 
 ```
-go get github.com/wangbin/jiebago/...
+go get github.com/fumiama/jieba/...
 ```
 
 ## 使用
@@ -20,7 +20,7 @@ package main
 import (
         "fmt"
 
-        "github.com/wangbin/jiebago"
+        "github.com/fumiama/jieba"
 )
 
 var seg jiebago.Segmenter
@@ -62,7 +62,7 @@ func Example() {
 【搜索引擎模式】： 小明 / 硕士 / 毕业 / 于 / 中国 / 科学 / 学院 / 科学院 / 中国科学院 / 计算 / 计算所 / ， / 后 / 在 / 日本 / 京都 / 大学 / 日本京都大学 / 深造 /
 ```
 
-更多信息请参考[文档](https://godoc.org/github.com/wangbin/jiebago)。
+更多信息请参考[文档](https://godoc.org/github.com/fumiama/jieba)。
 
 ## 分词速度
 
