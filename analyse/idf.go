@@ -26,10 +26,10 @@ func (i *Idf) AddToken(token dictionary.Token) {
 	i.Unlock()
 }
 
-// Load loads all tokens from channel into it's dictionary.
-func (i *Idf) Load(ch <-chan dictionary.Token) {
+// Load loads all tokens into it's dictionary.
+func (i *Idf) Load(tokens ...dictionary.Token) {
 	i.Lock()
-	for token := range ch {
+	for _, token := range tokens {
 		i.freqMap[token.Text()] = token.Frequency()
 		i.freqs = append(i.freqs, token.Frequency())
 	}

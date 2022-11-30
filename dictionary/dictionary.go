@@ -13,44 +13,35 @@ import (
 // DictLoader is the interface that could add one token or load
 // tokens from channel.
 type DictLoader interface {
-	Load(<-chan Token)
+	Load(...Token)
 	AddToken(Token)
 }
 
-func loadDictionary(file *os.File) (<-chan Token, <-chan error) {
-	tokenCh, errCh := make(chan Token), make(chan error)
-
-	go func() {
-		defer close(tokenCh)
-		defer close(errCh)
-		scanner := bufio.NewScanner(file)
-		var token Token
-		var line string
-		var fields []string
-		var err error
-		for scanner.Scan() {
-			line = scanner.Text()
-			fields = strings.Split(line, " ")
-			token.text = strings.TrimSpace(strings.Replace(fields[0], "\ufeff", "", 1))
-			if length := len(fields); length > 1 {
-				token.frequency, err = strconv.ParseFloat(fields[1], 64)
-				if err != nil {
-					errCh <- err
-					return
-				}
-				if length > 2 {
-					token.pos = strings.TrimSpace(fields[2])
-				}
+func loadDictionary(file *os.File) (tokens []Token, err error) {
+	scanner := bufio.NewScanner(file)
+	var token Token
+	var line string
+	var fields []string
+	for scanner.Scan() {
+		line = scanner.Text()
+		fields = strings.Split(line, " ")
+		token.text = strings.TrimSpace(strings.Replace(fields[0], "\ufeff", "", 1))
+		if length := len(fields); length > 1 {
+			token.frequency, err = strconv.ParseFloat(fields[1], 64)
+			if err != nil {
+				return
 			}
-			tokenCh <- token
+			if length > 2 {
+				token.pos = strings.TrimSpace(fields[2])
+			}
 		}
+		tokens = append(tokens, token)
+	}
 
-		if err = scanner.Err(); err != nil {
-			errCh <- err
-		}
-	}()
-	return tokenCh, errCh
-
+	if err = scanner.Err(); err != nil {
+		return
+	}
+	return tokens, nil
 }
 
 // LoadDictionary reads the given file and passes all tokens to a DictLoader.
@@ -63,12 +54,13 @@ func LoadDictionary(dl DictLoader, fileName string) error {
 	if err != nil {
 		return err
 	}
-	defer dictFile.Close()
-	tokenCh, errCh := loadDictionary(dictFile)
-	dl.Load(tokenCh)
-
-	return <-errCh
-
+	tokens, err := loadDictionary(dictFile)
+	dictFile.Close()
+	if err != nil {
+		return err
+	}
+	dl.Load(tokens...)
+	return nil
 }
 
 func dictPath(dictFileName string) (string, error) {

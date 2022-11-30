@@ -43,8 +43,8 @@ var DefaultStopWordMap = map[string]int{
 
 // StopWord is a thread-safe dictionary for all stop words.
 type StopWord struct {
-	stopWordMap map[string]int
 	sync.RWMutex
+	stopWordMap map[string]int
 }
 
 // AddToken adds a token into StopWord dictionary.
@@ -56,9 +56,13 @@ func (s *StopWord) AddToken(token dictionary.Token) {
 
 // NewStopWord create a new StopWord with default stop words.
 func NewStopWord() *StopWord {
-	s := new(StopWord)
-	s.stopWordMap = DefaultStopWordMap
-	return s
+	m := make(map[string]int, len(DefaultStopWordMap)*2)
+	for k, v := range DefaultStopWordMap {
+		m[k] = v
+	}
+	return &StopWord{
+		stopWordMap: m,
+	}
 }
 
 // IsStopWord checks if a given word is stop word.
@@ -69,10 +73,10 @@ func (s *StopWord) IsStopWord(word string) bool {
 	return ok
 }
 
-// Load loads all tokens from given channel into StopWord dictionary.
-func (s *StopWord) Load(ch <-chan dictionary.Token) {
+// Load loads all tokens into StopWord dictionary.
+func (s *StopWord) Load(tokens ...dictionary.Token) {
 	s.Lock()
-	for token := range ch {
+	for _, token := range tokens {
 		s.stopWordMap[token.Text()] = 1
 	}
 	s.Unlock()

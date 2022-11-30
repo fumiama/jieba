@@ -11,9 +11,9 @@ type Dict struct {
 	sync.RWMutex
 }
 
-func (d *Dict) Load(ch <-chan Token) {
+func (d *Dict) Load(tokens ...Token) {
 	d.Lock()
-	for token := range ch {
+	for _, token := range tokens {
 		d.freqMap[token.Text()] = token.Frequency()
 		if len(token.Pos()) > 0 {
 			d.posMap[token.Text()] = token.Pos()

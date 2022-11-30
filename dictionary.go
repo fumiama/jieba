@@ -15,9 +15,9 @@ type Dictionary struct {
 }
 
 // Load loads all tokens from given channel
-func (d *Dictionary) Load(ch <-chan dictionary.Token) {
+func (d *Dictionary) Load(tokens ...dictionary.Token) {
 	d.Lock()
-	for token := range ch {
+	for _, token := range tokens {
 		d.addToken(token)
 	}
 	d.Unlock()
