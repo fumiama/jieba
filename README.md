@@ -1,4 +1,4 @@
-#结巴分词 Go 语言版：jieba
+# jieba
 
 [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
 
