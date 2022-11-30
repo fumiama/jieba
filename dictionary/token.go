@@ -2,12 +2,12 @@ package dictionary
 
 // Token represents a Chinese word with (optional) frequency and POS.
 type Token struct {
-	text      string
 	frequency float64
+	text      string
 	pos       string
 }
 
-//Text returns token's text.
+// Text returns token's text.
 func (t Token) Text() string {
 	return t.text
 }

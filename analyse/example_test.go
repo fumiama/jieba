@@ -6,8 +6,8 @@ import (
 
 func Example_extractTags() {
 	var t TagExtracter
-	t.LoadDictionary("../dict.txt")
-	t.LoadIdf("idf.txt")
+	t.LoadDictionaryAt("../dict.txt")
+	t.LoadIdfAt("idf.txt")
 
 	sentence := "这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。"
 	segments := t.ExtractTags(sentence, 5)
@@ -20,7 +20,7 @@ func Example_extractTags() {
 }
 
 func Example_textRank() {
-	t, err := NewTextRanker("../dict.txt")
+	t, err := NewTextRankerAt("../dict.txt")
 	if err != nil {
 		panic(err)
 	}

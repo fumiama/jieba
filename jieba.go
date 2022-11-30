@@ -2,6 +2,7 @@
 package jieba
 
 import (
+	"io/fs"
 	"math"
 	"regexp"
 	"strings"
@@ -93,16 +94,30 @@ func (seg *Segmenter) SuggestFrequency(words ...string) float64 {
 
 // LoadDictionary loads dictionary from given file name. Everytime
 // LoadDictionary is called, previously loaded dictionary will be cleard.
-func (seg *Segmenter) LoadDictionary(fileName string) error {
+func (seg *Segmenter) LoadDictionary(file fs.File) error {
 	seg.dict = &Dictionary{freqMap: make(map[string]float64)}
-	return seg.dict.loadDictionary(fileName)
+	return seg.dict.loadDictionary(file)
+}
+
+// LoadDictionaryAt loads dictionary from given file name. Everytime
+// LoadDictionaryAt is called, previously loaded dictionary will be cleard.
+func (seg *Segmenter) LoadDictionaryAt(file string) error {
+	seg.dict = &Dictionary{freqMap: make(map[string]float64)}
+	return seg.dict.loadDictionaryAt(file)
 }
 
 // LoadUserDictionary loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
-func (seg *Segmenter) LoadUserDictionary(fileName string) error {
-	return seg.dict.loadDictionary(fileName)
+func (seg *Segmenter) LoadUserDictionary(file fs.File) error {
+	return seg.dict.loadDictionary(file)
+}
+
+// LoadUserDictionaryAt loads a user specified dictionary, it must be called
+// after LoadDictionary, and it will not clear any previous loaded dictionary,
+// instead it will override exist entries.
+func (seg *Segmenter) LoadUserDictionaryAt(file string) error {
+	return seg.dict.loadDictionaryAt(file)
 }
 
 func (seg *Segmenter) dag(runes []rune) map[int][]int {

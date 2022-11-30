@@ -4,8 +4,8 @@ package dictionary
 
 import (
 	"bufio"
+	"io/fs"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -17,7 +17,7 @@ type DictLoader interface {
 	AddToken(Token)
 }
 
-func loadDictionary(file *os.File) (tokens []Token, err error) {
+func loadDictionary(file fs.File) (tokens []Token, err error) {
 	scanner := bufio.NewScanner(file)
 	var token Token
 	var line string
@@ -45,12 +45,18 @@ func loadDictionary(file *os.File) (tokens []Token, err error) {
 }
 
 // LoadDictionary reads the given file and passes all tokens to a DictLoader.
-func LoadDictionary(dl DictLoader, fileName string) error {
-	filePath, err := dictPath(fileName)
+func LoadDictionary(dl DictLoader, file fs.File) error {
+	tokens, err := loadDictionary(file)
 	if err != nil {
 		return err
 	}
-	dictFile, err := os.Open(filePath)
+	dl.Load(tokens...)
+	return nil
+}
+
+// LoadDictionaryAt reads the given file and passes all tokens to a DictLoader.
+func LoadDictionaryAt(dl DictLoader, file string) error {
+	dictFile, err := os.Open(file)
 	if err != nil {
 		return err
 	}
@@ -61,17 +67,4 @@ func LoadDictionary(dl DictLoader, fileName string) error {
 	}
 	dl.Load(tokens...)
 	return nil
-}
-
-func dictPath(dictFileName string) (string, error) {
-	if filepath.IsAbs(dictFileName) {
-		return dictFileName, nil
-	}
-	var dictFilePath string
-	cwd, err := os.Getwd()
-	if err != nil {
-		return dictFilePath, err
-	}
-	dictFilePath = filepath.Clean(filepath.Join(cwd, dictFileName))
-	return dictFilePath, nil
 }

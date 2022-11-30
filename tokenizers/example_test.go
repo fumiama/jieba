@@ -10,7 +10,7 @@ func Example() {
 	sentence := []byte("永和服装饰品有限公司")
 
 	// default mode
-	tokenizer, _ := tokenizers.NewJiebaTokenizer("../dict.txt", true, false)
+	tokenizer, _ := tokenizers.NewJiebaTokenizerAt("../dict.txt", true, false)
 	fmt.Println("Default Mode:")
 	for _, token := range tokenizer.Tokenize(sentence) {
 		fmt.Printf(
@@ -19,7 +19,7 @@ func Example() {
 	}
 
 	//search mode
-	tokenizer, _ = tokenizers.NewJiebaTokenizer("../dict.txt", true, true)
+	tokenizer, _ = tokenizers.NewJiebaTokenizerAt("../dict.txt", true, true)
 	fmt.Println("Search Mode:")
 	for _, token := range tokenizer.Tokenize(sentence) {
 		fmt.Printf(

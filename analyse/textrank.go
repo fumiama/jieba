@@ -2,6 +2,7 @@ package analyse
 
 import (
 	"hash/crc64"
+	"io/fs"
 	"math"
 	"sort"
 
@@ -173,7 +174,13 @@ func (t *TextRanker) TextRank(sentence string, topK int) Segments {
 type TextRanker posseg.Segmenter
 
 // NewTextRanker reads a given file and create a new dictionary file for Textranker.
-func NewTextRanker(fileName string) (TextRanker, error) {
+func NewTextRanker(file fs.File) (TextRanker, error) {
 	seg := posseg.Segmenter{}
-	return TextRanker(seg), seg.LoadDictionary(fileName)
+	return TextRanker(seg), seg.LoadDictionary(file)
+}
+
+// NewTextRankerAt reads a given file and create a new dictionary file for Textranker.
+func NewTextRankerAt(fileName string) (TextRanker, error) {
+	seg := posseg.Segmenter{}
+	return TextRanker(seg), seg.LoadDictionaryAt(fileName)
 }

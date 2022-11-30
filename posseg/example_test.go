@@ -8,7 +8,7 @@ import (
 
 func Example() {
 	var seg posseg.Segmenter
-	seg.LoadDictionary("../dict.txt")
+	seg.LoadDictionaryAt("../dict.txt")
 
 	for segment := range seg.Cut("我爱北京天安门", true) {
 		fmt.Printf("%s %s\n", segment.Text(), segment.Pos())

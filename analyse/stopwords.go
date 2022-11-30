@@ -1,6 +1,7 @@
 package analyse
 
 import (
+	"io/fs"
 	"sync"
 
 	"github.com/fumiama/jieba/dictionary"
@@ -82,6 +83,10 @@ func (s *StopWord) Load(tokens ...dictionary.Token) {
 	s.Unlock()
 }
 
-func (s *StopWord) loadDictionary(fileName string) error {
-	return dictionary.LoadDictionary(s, fileName)
+func (s *StopWord) loadDictionary(file fs.File) error {
+	return dictionary.LoadDictionary(s, file)
+}
+
+func (s *StopWord) loadDictionaryAt(file string) error {
+	return dictionary.LoadDictionaryAt(s, file)
 }

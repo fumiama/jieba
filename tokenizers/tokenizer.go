@@ -1,7 +1,7 @@
 package tokenizers
 
 import (
-	"fmt"
+	"io/fs"
 	"regexp"
 	"strconv"
 
@@ -26,6 +26,36 @@ NewJiebaTokenizer creates a new JiebaTokenizer.
 
 Parameters:
 
+	dictFile: the dictioanry file.
+
+	hmm: whether to use Hidden Markov Model to cut unknown words,
+	i.e. not found in dictionary. For example word "安卓" (means "Android" in
+	English) not in the dictionary file. If hmm is set to false, it will be
+	cutted into two single words "安" and "卓", if hmm is set to true, it will
+	be traded as one single word because Jieba using Hidden Markov Model with
+	Viterbi algorithm to guess the best possibility.
+
+	searchMode: whether to further cut long words into serveral short words.
+	In Chinese, some long words may contains other words, for example "交换机"
+	is a Chinese word for "Switcher", if sechMode is false, it will trade
+	"交换机" as a single word. If searchMode is true, it will further split
+	this word into "交换", "换机", which are valid Chinese words.
+*/
+func NewJiebaTokenizer(dictFile fs.File, hmm, searchMode bool) (analysis.Tokenizer, error) {
+	var seg jieba.Segmenter
+	err := seg.LoadDictionary(dictFile)
+	return &JiebaTokenizer{
+		seg:        seg,
+		hmm:        hmm,
+		searchMode: searchMode,
+	}, err
+}
+
+/*
+NewJiebaTokenizerAt creates a new JiebaTokenizer.
+
+Parameters:
+
 	dictFilePath: path of the dictioanry file.
 
 	hmm: whether to use Hidden Markov Model to cut unknown words,
@@ -41,9 +71,9 @@ Parameters:
 	"交换机" as a single word. If searchMode is true, it will further split
 	this word into "交换", "换机", which are valid Chinese words.
 */
-func NewJiebaTokenizer(dictFilePath string, hmm, searchMode bool) (analysis.Tokenizer, error) {
+func NewJiebaTokenizerAt(dictFilePath string, hmm, searchMode bool) (analysis.Tokenizer, error) {
 	var seg jieba.Segmenter
-	err := seg.LoadDictionary(dictFilePath)
+	err := seg.LoadDictionaryAt(dictFilePath)
 	return &JiebaTokenizer{
 		seg:        seg,
 		hmm:        hmm,
@@ -107,18 +137,13 @@ JiebaTokenizerConstructor creates a JiebaTokenizer.
 
 Parameter config should contains at least one parameter:
 
-	file: the path of the dictionary file.
+	file: the path of the dictionary file or fs.File.
 
 	hmm: optional, specify whether to use Hidden Markov Model, see NewJiebaTokenizer for details.
 
 	search: optional, speficy whether to use search mode, see NewJiebaTokenizer for details.
 */
-func JiebaTokenizerConstructor(config map[string]interface{}, cache *registry.Cache) (
-	analysis.Tokenizer, error) {
-	dictFilePath, ok := config["file"].(string)
-	if !ok {
-		return nil, fmt.Errorf("must specify dictionary file path")
-	}
+func JiebaTokenizerConstructor(config map[string]interface{}, cache *registry.Cache) (analysis.Tokenizer, error) {
 	hmm, ok := config["hmm"].(bool)
 	if !ok {
 		hmm = true
@@ -127,8 +152,12 @@ func JiebaTokenizerConstructor(config map[string]interface{}, cache *registry.Ca
 	if !ok {
 		searchMode = true
 	}
-
-	return NewJiebaTokenizer(dictFilePath, hmm, searchMode)
+	dictFilePath, ok := config["file"].(string)
+	if ok {
+		return NewJiebaTokenizerAt(dictFilePath, hmm, searchMode)
+	}
+	dictFile := config["file"].(fs.File)
+	return NewJiebaTokenizer(dictFile, hmm, searchMode)
 }
 
 func detectTokenType(term string) analysis.TokenType {

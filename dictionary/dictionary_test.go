@@ -33,7 +33,7 @@ func (d *Dict) AddToken(token Token) {
 
 func TestLoadDictionary(t *testing.T) {
 	d := &Dict{freqMap: make(map[string]float64), posMap: make(map[string]string)}
-	err := LoadDictionary(d, "../userdict.txt")
+	err := LoadDictionaryAt(d, "../userdict.txt")
 	if err != nil {
 		t.Fatalf(err.Error())
 	}
@@ -48,8 +48,8 @@ func TestLoadDictionary(t *testing.T) {
 
 func TestAddToken(t *testing.T) {
 	d := &Dict{freqMap: make(map[string]float64), posMap: make(map[string]string)}
-	LoadDictionary(d, "../userdict.txt")
-	d.AddToken(Token{"好用", 99, "a"})
+	LoadDictionaryAt(d, "../userdict.txt")
+	d.AddToken(Token{99, "好用", "a"})
 	if d.freqMap["好用"] != 99 {
 		t.Fatalf("Failed to add token, got frequency %f, expected 99", d.freqMap["好用"])
 	}

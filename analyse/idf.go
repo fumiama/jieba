@@ -1,6 +1,7 @@
 package analyse
 
 import (
+	"io/fs"
 	"sort"
 	"sync"
 
@@ -38,8 +39,12 @@ func (i *Idf) Load(tokens ...dictionary.Token) {
 	i.Unlock()
 }
 
-func (i *Idf) loadDictionary(fileName string) error {
-	return dictionary.LoadDictionary(i, fileName)
+func (i *Idf) loadDictionary(file fs.File) error {
+	return dictionary.LoadDictionary(i, file)
+}
+
+func (i *Idf) loadDictionaryAt(fileName string) error {
+	return dictionary.LoadDictionaryAt(i, fileName)
 }
 
 // Frequency returns the IDF of given word.

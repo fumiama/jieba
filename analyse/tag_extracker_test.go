@@ -256,8 +256,8 @@ var (
 
 func TestExtractTags(t *testing.T) {
 	var te TagExtracter
-	te.LoadDictionary("../dict.txt")
-	te.LoadIdf("idf.txt")
+	te.LoadDictionaryAt("../dict.txt")
+	te.LoadIdfAt("idf.txt")
 
 	for index, sentence := range testContents {
 		result := te.ExtractTags(sentence, 20)
@@ -274,8 +274,8 @@ func TestExtractTags(t *testing.T) {
 
 func TestExtratTagsWithWeight(t *testing.T) {
 	var te TagExtracter
-	te.LoadDictionary("../dict.txt")
-	te.LoadIdf("idf.txt")
+	te.LoadDictionaryAt("../dict.txt")
+	te.LoadIdfAt("idf.txt")
 	result := te.ExtractTags(Lyric, 10)
 	for index, tag := range result {
 		if LyciWeight[index].text != tag.text ||
@@ -287,9 +287,9 @@ func TestExtratTagsWithWeight(t *testing.T) {
 
 func TestExtractTagsWithStopWordsFile(t *testing.T) {
 	var te TagExtracter
-	te.LoadDictionary("../dict.txt")
-	te.LoadIdf("idf.txt")
-	te.LoadStopWords("stop_words.txt")
+	te.LoadDictionaryAt("../dict.txt")
+	te.LoadIdfAt("idf.txt")
+	te.LoadStopWordsAt("stop_words.txt")
 	result := te.ExtractTags(Lyric, 7)
 	for index, tag := range result {
 		if LyciWeight2[index].text != tag.text ||

@@ -2,6 +2,7 @@
 package posseg
 
 import (
+	"io/fs"
 	"math"
 	"regexp"
 
@@ -39,17 +40,31 @@ type Segmenter struct {
 }
 
 // LoadDictionary loads dictionary from given file name.
-// Everytime LoadDictionary is called, previously loaded dictionary will be cleard.
-func (seg *Segmenter) LoadDictionary(fileName string) error {
+// Everytime LoadDictionaryAt is called, previously loaded dictionary will be cleard.
+func (seg *Segmenter) LoadDictionary(file fs.File) error {
 	seg.dict = &Dictionary{freqMap: make(map[string]float64), posMap: make(map[string]string)}
-	return seg.dict.loadDictionary(fileName)
+	return seg.dict.loadDictionary(file)
+}
+
+// LoadDictionaryAt loads dictionary from given file name.
+// Everytime LoadDictionaryAt is called, previously loaded dictionary will be cleard.
+func (seg *Segmenter) LoadDictionaryAt(fileName string) error {
+	seg.dict = &Dictionary{freqMap: make(map[string]float64), posMap: make(map[string]string)}
+	return seg.dict.loadDictionaryAt(fileName)
 }
 
 // LoadUserDictionary loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
-func (seg *Segmenter) LoadUserDictionary(fileName string) error {
-	return seg.dict.loadDictionary(fileName)
+func (seg *Segmenter) LoadUserDictionary(file fs.File) error {
+	return seg.dict.loadDictionary(file)
+}
+
+// LoadUserDictionaryAt loads a user specified dictionary, it must be called
+// after LoadDictionary, and it will not clear any previous loaded dictionary,
+// instead it will override exist entries.
+func (seg *Segmenter) LoadUserDictionaryAt(fileName string) error {
+	return seg.dict.loadDictionaryAt(fileName)
 }
 
 func (seg *Segmenter) cutDetailInternal(sentence string) <-chan Segment {

@@ -2,6 +2,7 @@
 package analyse
 
 import (
+	"io/fs"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -52,22 +53,41 @@ type TagExtracter struct {
 }
 
 // LoadDictionary reads the given filename and create a new dictionary.
-func (t *TagExtracter) LoadDictionary(fileName string) error {
+func (t *TagExtracter) LoadDictionary(file fs.File) error {
 	t.stopWord = NewStopWord()
 	t.seg = new(jieba.Segmenter)
-	return t.seg.LoadDictionary(fileName)
+	return t.seg.LoadDictionary(file)
+}
+
+// LoadDictionaryAt reads the given filename and create a new dictionary.
+func (t *TagExtracter) LoadDictionaryAt(fileName string) error {
+	t.stopWord = NewStopWord()
+	t.seg = new(jieba.Segmenter)
+	return t.seg.LoadDictionaryAt(fileName)
 }
 
 // LoadIdf reads the given file and create a new Idf dictionary.
-func (t *TagExtracter) LoadIdf(fileName string) error {
+func (t *TagExtracter) LoadIdf(file fs.File) error {
 	t.idf = NewIdf()
-	return t.idf.loadDictionary(fileName)
+	return t.idf.loadDictionary(file)
+}
+
+// LoadIdfAt reads the given file and create a new Idf dictionary.
+func (t *TagExtracter) LoadIdfAt(fileName string) error {
+	t.idf = NewIdf()
+	return t.idf.loadDictionaryAt(fileName)
 }
 
 // LoadStopWords reads the given file and create a new StopWord dictionary.
-func (t *TagExtracter) LoadStopWords(fileName string) error {
+func (t *TagExtracter) LoadStopWords(file fs.File) error {
 	t.stopWord = NewStopWord()
-	return t.stopWord.loadDictionary(fileName)
+	return t.stopWord.loadDictionary(file)
+}
+
+// LoadStopWordsAt reads the given file and create a new StopWord dictionary.
+func (t *TagExtracter) LoadStopWordsAt(file string) error {
+	t.stopWord = NewStopWord()
+	return t.stopWord.loadDictionaryAt(file)
 }
 
 // ExtractTags extracts the topK key words from sentence.

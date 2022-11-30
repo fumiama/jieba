@@ -23,7 +23,7 @@ var (
 )
 
 func TestTextRank(t *testing.T) {
-	tr, err := NewTextRanker("../dict.txt")
+	tr, err := NewTextRankerAt("../dict.txt")
 	if err != nil {
 		t.Fatal(err)
 	}

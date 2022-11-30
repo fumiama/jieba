@@ -616,7 +616,7 @@ var (
 )
 
 func init() {
-	seg.LoadDictionary("dict.txt")
+	seg.LoadDictionaryAt("dict.txt")
 }
 
 func TestCutDAG(t *testing.T) {
@@ -715,7 +715,7 @@ func TestCutForSearch(t *testing.T) {
 
 func TestLoadDictionary(t *testing.T) {
 	var result []string
-	seg.LoadDictionary("foobar.txt")
+	seg.LoadDictionaryAt("foobar.txt")
 	for index, content := range testContents {
 		result = seg.Cut(content, true)
 		if len(result) != len(userDictCutResult[index]) {
@@ -728,11 +728,11 @@ func TestLoadDictionary(t *testing.T) {
 			}
 		}
 	}
-	seg.LoadDictionary("dict.txt")
+	seg.LoadDictionaryAt("dict.txt")
 }
 
 func TestLoadUserDictionary(t *testing.T) {
-	seg.LoadUserDictionary("userdict.txt")
+	seg.LoadUserDictionaryAt("userdict.txt")
 
 	sentence := "李小福是创新办主任也是云计算方面的专家; 什么是八一双鹿例如我输入一个带“韩玉赏鉴”的标题，在自定义词库中也增加了此词为N类型"
 	result := []string{"李小福", "是", "创新办", "主任", "也", "是", "云计算", "方面", "的", "专家", ";", " ", "什么", "是", "八一双鹿", "例如", "我", "输入", "一个", "带", "“", "韩玉赏鉴", "”", "的", "标题", "，", "在", "自定义词", "库中", "也", "增加", "了", "此", "词为", "N", "类型"}
@@ -771,7 +771,7 @@ func TestLoadUserDictionary(t *testing.T) {
 			t.Fatal(word)
 		}
 	}
-	seg.LoadDictionary("dict.txt")
+	seg.LoadDictionaryAt("dict.txt")
 }
 
 func BenchmarkCutNoHMM(b *testing.B) {

@@ -269,7 +269,7 @@ var (
 )
 
 func init() {
-	seg.LoadDictionary("../dict.txt")
+	seg.LoadDictionaryAt("../dict.txt")
 }
 
 func chanToArray(ch <-chan Segment) []Segment {
@@ -357,8 +357,8 @@ func TestBug137(t *testing.T) {
 }
 
 func TestUserDict(t *testing.T) {
-	seg.LoadUserDictionary("../userdict.txt")
-	defer seg.LoadDictionary("../dict.txt")
+	seg.LoadUserDictionaryAt("../userdict.txt")
+	defer seg.LoadDictionaryAt("../dict.txt")
 	sentence := "李小福是创新办主任也是云计算方面的专家; 什么是八一双鹿例如我输入一个带“韩玉赏鉴”的标题，在自定义词库中也增加了此词为N类型"
 
 	cutResult := []Segment{
