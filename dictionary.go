@@ -1,7 +1,7 @@
 package jieba
 
 import (
-	"io/fs"
+	"io"
 	"math"
 	"sync"
 
@@ -58,7 +58,7 @@ func (d *Dictionary) Frequency(key string) (float64, bool) {
 	return freq, ok
 }
 
-func (d *Dictionary) loadDictionary(file fs.File) error {
+func (d *Dictionary) loadDictionary(file io.Reader) error {
 	return dictionary.LoadDictionary(d, file)
 }
 

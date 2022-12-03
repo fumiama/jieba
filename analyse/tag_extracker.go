@@ -2,7 +2,7 @@
 package analyse
 
 import (
-	"io/fs"
+	"io"
 	"sort"
 	"strings"
 	"unicode/utf8"
@@ -53,7 +53,7 @@ type TagExtracter struct {
 }
 
 // LoadDictionary reads the given filename and create a new dictionary.
-func (t *TagExtracter) LoadDictionary(file fs.File) (err error) {
+func (t *TagExtracter) LoadDictionary(file io.Reader) (err error) {
 	t.stopWord = NewStopWord()
 	t.seg, err = jieba.LoadDictionary(file)
 	return
@@ -67,7 +67,7 @@ func (t *TagExtracter) LoadDictionaryAt(file string) (err error) {
 }
 
 // LoadIdf reads the given file and create a new Idf dictionary.
-func (t *TagExtracter) LoadIdf(file fs.File) error {
+func (t *TagExtracter) LoadIdf(file io.Reader) error {
 	t.idf = NewIdf()
 	return t.idf.loadDictionary(file)
 }
@@ -79,7 +79,7 @@ func (t *TagExtracter) LoadIdfAt(fileName string) error {
 }
 
 // LoadStopWords reads the given file and create a new StopWord dictionary.
-func (t *TagExtracter) LoadStopWords(file fs.File) error {
+func (t *TagExtracter) LoadStopWords(file io.Reader) error {
 	t.stopWord = NewStopWord()
 	return t.stopWord.loadDictionary(file)
 }

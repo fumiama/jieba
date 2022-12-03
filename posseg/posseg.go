@@ -2,7 +2,7 @@
 package posseg
 
 import (
-	"io/fs"
+	"io"
 	"math"
 	"regexp"
 
@@ -39,7 +39,7 @@ type Segmenter Dictionary
 
 // LoadDictionary loads dictionary from given file name.
 // Everytime LoadDictionaryAt is called, previously loaded dictionary will be cleard.
-func LoadDictionary(file fs.File) (*Segmenter, error) {
+func LoadDictionary(file io.Reader) (*Segmenter, error) {
 	dict := &Dictionary{freqMap: make(map[string]float64), posMap: make(map[string]string)}
 	err := dict.loadDictionary(file)
 	if err != nil {
@@ -62,7 +62,7 @@ func LoadDictionaryAt(file string) (*Segmenter, error) {
 // LoadUserDictionary loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
-func (seg *Segmenter) LoadUserDictionary(file fs.File) error {
+func (seg *Segmenter) LoadUserDictionary(file io.Reader) error {
 	return (*Dictionary)(seg).loadDictionary(file)
 }
 

@@ -2,7 +2,7 @@
 package jieba
 
 import (
-	"io/fs"
+	"io"
 	"math"
 	"regexp"
 	"strings"
@@ -92,7 +92,7 @@ func (seg *Segmenter) SuggestFrequency(words ...string) float64 {
 
 // LoadDictionary loads dictionary from given file name. Everytime
 // LoadDictionary is called, previously loaded dictionary will be cleard.
-func LoadDictionary(file fs.File) (*Segmenter, error) {
+func LoadDictionary(file io.Reader) (*Segmenter, error) {
 	d := &Dictionary{freqMap: make(map[string]float64)}
 	err := d.loadDictionary(file)
 	return (*Segmenter)(d), err
@@ -109,7 +109,7 @@ func LoadDictionaryAt(file string) (*Segmenter, error) {
 // LoadUserDictionary loads a user specified dictionary, it must be called
 // after LoadDictionary, and it will not clear any previous loaded dictionary,
 // instead it will override exist entries.
-func (seg *Segmenter) LoadUserDictionary(file fs.File) error {
+func (seg *Segmenter) LoadUserDictionary(file io.Reader) error {
 	return (*Dictionary)(seg).loadDictionary(file)
 }
 

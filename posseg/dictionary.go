@@ -1,7 +1,7 @@
 package posseg
 
 import (
-	"io/fs"
+	"io"
 	"math"
 	"sync"
 
@@ -70,7 +70,7 @@ func (d *Dictionary) Pos(key string) (string, bool) {
 	return pos, ok
 }
 
-func (d *Dictionary) loadDictionary(file fs.File) error {
+func (d *Dictionary) loadDictionary(file io.Reader) error {
 	return dictionary.LoadDictionary(d, file)
 }
 

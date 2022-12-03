@@ -4,7 +4,7 @@ package dictionary
 
 import (
 	"bufio"
-	"io/fs"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +16,7 @@ type DictLoader interface {
 	AddToken(Token)
 }
 
-func loadDictionary(file fs.File) (tokens []Token, err error) {
+func loadDictionary(file io.Reader) (tokens []Token, err error) {
 	scanner := bufio.NewScanner(file)
 	var token Token
 	var line string
@@ -44,7 +44,7 @@ func loadDictionary(file fs.File) (tokens []Token, err error) {
 }
 
 // LoadDictionary reads the given file and passes all tokens to a DictLoader.
-func LoadDictionary(dl DictLoader, file fs.File) error {
+func LoadDictionary(dl DictLoader, file io.Reader) error {
 	tokens, err := loadDictionary(file)
 	if err != nil {
 		return err

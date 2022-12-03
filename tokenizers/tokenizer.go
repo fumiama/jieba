@@ -1,7 +1,7 @@
 package tokenizers
 
 import (
-	"io/fs"
+	"io"
 	"regexp"
 	"strconv"
 
@@ -42,7 +42,7 @@ Parameters:
 	"交换机" as a single word. If searchMode is true, it will further split
 	this word into "交换", "换机", which are valid Chinese words.
 */
-func NewJiebaTokenizer(dictFile fs.File, hmm, searchMode bool) (analysis.Tokenizer, error) {
+func NewJiebaTokenizer(dictFile io.Reader, hmm, searchMode bool) (analysis.Tokenizer, error) {
 	seg, err := jieba.LoadDictionary(dictFile)
 	return &JiebaTokenizer{
 		seg:        seg,
@@ -131,7 +131,7 @@ JiebaTokenizerConstructor creates a JiebaTokenizer.
 
 Parameter config should contains at least one parameter:
 
-	file: the path of the dictionary file or fs.File.
+	file: the path of the dictionary file or io.Reader.
 
 	hmm: optional, specify whether to use Hidden Markov Model, see NewJiebaTokenizer for details.
 
@@ -150,7 +150,7 @@ func JiebaTokenizerConstructor(config map[string]interface{}, cache *registry.Ca
 	if ok {
 		return NewJiebaTokenizerAt(dictFilePath, hmm, searchMode)
 	}
-	dictFile := config["file"].(fs.File)
+	dictFile := config["file"].(io.Reader)
 	return NewJiebaTokenizer(dictFile, hmm, searchMode)
 }
 

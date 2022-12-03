@@ -2,7 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/fumiama/jieba?status.svg)](https://godoc.org/github.com/fumiama/jieba)
 
-[结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，本仓库是结巴分词的 Golang 语言实现，修改于[jiebago](https://github.com/wangbin/jiebago)，大幅优化了速度与性能，增加了从`fs.File`加载字典等功能。
+[结巴分词](https://github.com/fxsjy/jieba) 是由 [@fxsjy](https://github.com/fxsjy) 使用 Python 编写的中文分词组件，本仓库是结巴分词的 Golang 语言实现，修改于[jiebago](https://github.com/wangbin/jiebago)，大幅优化了速度与性能，增加了从`io.Reader`加载字典等功能。
 
 
 ## 使用

@@ -1,7 +1,7 @@
 package analyse
 
 import (
-	"io/fs"
+	"io"
 	"sort"
 	"sync"
 
@@ -39,7 +39,7 @@ func (i *Idf) Load(tokens ...dictionary.Token) {
 	i.Unlock()
 }
 
-func (i *Idf) loadDictionary(file fs.File) error {
+func (i *Idf) loadDictionary(file io.Reader) error {
 	return dictionary.LoadDictionary(i, file)
 }
 
