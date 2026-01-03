@@ -36,12 +36,9 @@ func (d *Dictionary) AddToken(token dictionary.Token) {
 func (d *Dictionary) addToken(token dictionary.Token) {
 	d.freqMap[token.Text()] = token.Frequency()
 	d.total += token.Frequency()
-	runes := []rune(token.Text())
-	n := len(runes)
-	for i := 0; i < n; i++ { //TODO: n-1?
-		frag := string(runes[:i+1])
-		if _, ok := d.freqMap[frag]; !ok {
-			d.freqMap[frag] = 0.0
+	for i := range token.Text() {
+		if _, ok := d.freqMap[token.Text()[:i]]; i > 0 && !ok {
+			d.freqMap[token.Text()[:i]] = 0.0
 		}
 	}
 }
